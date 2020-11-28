@@ -8,6 +8,9 @@ package sctp_go
 //#include <linux/sctp.h>
 //#include <netinet/in.h>
 //#include <netinet/sctp.h>
+//typedef struct iovec                    IoVector;
+//typedef struct msghdr                   MsgHeader;
+//typedef struct cmsghdr                  CMsgHeader;
 //typedef struct in_addr                  InAddr;
 //typedef struct in6_addr                 In6Addr;
 //typedef struct sockaddr_in6             SockAddrIn6;
@@ -75,6 +78,9 @@ import "C"
 const (
 	SOL_SCTP                       = C.SOL_SCTP
 	IPPROTO_SCTP                   = C.IPPROTO_SCTP
+	IoVectorSize                   = C.sizeof_IoVector
+	MsgHeaderSize                  = C.sizeof_MsgHeader
+	CMsgHeaderSize                 = C.sizeof_CMsgHeader
 	InAddrSize                     = C.sizeof_InAddr
 	In6AddrSize                    = C.sizeof_In6Addr
 	SockAddrInSize                 = C.sizeof_SockAddrIn

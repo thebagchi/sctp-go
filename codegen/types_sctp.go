@@ -7,6 +7,9 @@ package sctp_go
 //#include <sys/socket.h>
 //#include <linux/sctp.h>
 //#include <netinet/in.h>
+//typedef struct iovec                    IoVector;
+//typedef struct msghdr                   MsgHeader;
+//typedef struct cmsghdr                  CMsgHeader;
 //typedef struct in_addr                  InAddr;
 //typedef struct in6_addr                 In6Addr;
 //typedef struct sockaddr_in6             SockAddrIn6;
@@ -71,6 +74,9 @@ package sctp_go
 //typedef struct sctp_event               SCTPEvent;
 import "C"
 
+type IoVector               C.IoVector
+type MsgHeader              C.MsgHeader
+type CMsgHeader             C.CMsgHeader
 type InAddr                 C.InAddr
 type In6Addr                C.In6Addr
 type SockAddrIn6            C.SockAddrIn6
