@@ -32,23 +32,6 @@ type SockAddrStorage struct {
 	X__ss_align   uint64
 }
 type SCTPAssocId int32
-type SCTPInitMsg struct {
-	Num_ostreams   uint16
-	Max_instreams  uint16
-	Max_attempts   uint16
-	Max_init_timeo uint16
-}
-type SCTPSndRcvInfo struct {
-	Stream     uint16
-	Ssn        uint16
-	Flags      uint16
-	Ppid       uint32
-	Context    uint32
-	Timetolive uint32
-	Tsn        uint32
-	Cumtsn     uint32
-	Assoc_id   int32
-}
 type SCTPSndInfo struct {
 	Sid      uint16
 	Flags    uint16
