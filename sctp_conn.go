@@ -5,6 +5,7 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+	"unsafe"
 )
 
 type SCTPConn struct {
@@ -75,6 +76,19 @@ func (conn *SCTPConn) SetWriteDeadline(t time.Time) error {
 	return nil
 }
 
+func (conn *SCTPConn) SetInitMsg(init *SCTPInitMsg) error {
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_SETSOCKOPT,
+		uintptr(conn.sock),
+		SOL_SCTP,
+		SCTP_INITMSG,
+		uintptr(unsafe.Pointer(&init)),
+		unsafe.Sizeof(init),
+		0,
+	)
+	return err
+}
+
 func (conn *SCTPConn) ok() bool {
 	if nil != conn && conn.sock > 0 {
 		return true
@@ -94,6 +108,19 @@ func DialSCTP(network string, local, remote *SCTPAddr, init *SCTPInitMsg) (*SCTP
 			Err:    net.UnknownNetworkError(network),
 		}
 	}
-	conn := &SCTPConn{}
+	sock, err := SCTPSocket(AddrFamily(network))
+	if nil != err {
+		return nil, err
+	}
+	conn := &SCTPConn{
+		sock: int64(sock),
+	}
+	{
+		err := conn.SetInitMsg(init)
+		if nil != err {
+			_ = conn.Close()
+			return nil, err
+		}
+	}
 	return conn, nil
 }
