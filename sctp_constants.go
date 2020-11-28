@@ -4,6 +4,8 @@
 package sctp_go
 
 const (
+	SOL_SCTP                       = 0x84
+	IPPROTO_SCTP                   = 0x84
 	InAddrSize                     = 0x4
 	In6AddrSize                    = 0x10
 	SockAddrInSize                 = 0x10
