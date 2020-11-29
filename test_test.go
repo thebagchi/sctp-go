@@ -59,6 +59,16 @@ func TestSizes(t *testing.T) {
 			fmt.Println("SCTPInitMsgSize: ", SCTPInitMsgSize)
 		}
 	}
+	{
+		temp := &SCTPGetAddrsOld{}
+		if unsafe.Sizeof(*temp) != SCTPGetAddrsOldSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPGetAddrsOldSize)
+			t.Error("SCTPGetAddrsOld sizes don't match")
+		} else {
+			fmt.Println("SCTPGetAddrsOldSize: ", SCTPGetAddrsOldSize)
+		}
+	}
 }
 
 func TestPacking(t *testing.T) {

@@ -90,7 +90,49 @@ func SCTPBind(sock int, addr *SCTPAddr, flags int) error {
 }
 
 func SCTPConnect(sock int, addr *SCTPAddr) (int, error) {
-	return 0, nil
+	var (
+		buffer         = MakeSockaddr(addr)
+		err    error   = nil
+		assoc  uintptr = 0
+	)
+	if len(buffer) > 0 {
+		addrs := &SCTPGetAddrsOld{
+			AssocId: 0,
+			Num:     int32(len(buffer)),
+			Addrs:   (*SockAddr)(unsafe.Pointer(&buffer[0])),
+		}
+		_, _, err = syscall.Syscall6(
+			syscall.SYS_SETSOCKOPT,
+			uintptr(sock),
+			syscall.IPPROTO_SCTP,
+			SCTP_SOCKOPT_CONNECTX3,
+			uintptr(unsafe.Pointer(addrs)),
+			unsafe.Sizeof(*addrs),
+			0,
+		)
+		if nil == err {
+			return int(addrs.AssocId), nil
+		} else {
+			if err == syscall.EINPROGRESS {
+				return int(addrs.AssocId), nil
+			}
+			if err != syscall.ENOPROTOOPT {
+				return 0, err
+			}
+		}
+		assoc, _, err = syscall.Syscall6(
+			syscall.SYS_SETSOCKOPT,
+			uintptr(sock),
+			syscall.IPPROTO_SCTP,
+			SCTP_SOCKOPT_CONNECTX,
+			uintptr(unsafe.Pointer(&buffer[0])),
+			uintptr(len(buffer)),
+			0,
+		)
+	} else {
+		return 0, syscall.EINVAL
+	}
+	return int(assoc), err
 }
 
 func AddrFamily(network string) int {

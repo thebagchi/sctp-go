@@ -65,3 +65,8 @@ type SCTPSndRcvInfo struct {
 	CumTsn     uint32
 	AssocId    int32
 }
+type SCTPGetAddrsOld struct {
+	AssocId int32
+	Num     int32
+	Addrs   *SockAddr
+}

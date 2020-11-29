@@ -240,11 +240,6 @@ type SCTPAuthChunks struct {
 type SCTPAssocIds struct {
 	Number_of_ids uint32
 }
-type SCTPGetAddrsOld struct {
-	AssocId int32
-	Addr_num int32
-	Addrs    *SockAddr
-}
 type SCTPGetAddrs struct {
 	AssocId int32
 	Addr_num uint32
