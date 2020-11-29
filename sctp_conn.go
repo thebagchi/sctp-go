@@ -9,7 +9,8 @@ import (
 )
 
 type SCTPConn struct {
-	sock int64
+	sock  int64
+	assoc int
 }
 
 func NewSCTPConn(sock int) *SCTPConn {
@@ -108,6 +109,15 @@ func DialSCTP(network string, local, remote *SCTPAddr, init *SCTPInitMsg) (*SCTP
 			Err:    net.UnknownNetworkError(network),
 		}
 	}
+	if nil == remote {
+		return nil, &net.OpError{
+			Op:     "dial",
+			Net:    network,
+			Source: local.Addr(),
+			Addr:   remote.Addr(),
+			Err:    net.InvalidAddrError("invalid remote addr"),
+		}
+	}
 	sock, err := SCTPSocket(AddrFamily(network))
 	if nil != err {
 		return nil, err
@@ -115,12 +125,26 @@ func DialSCTP(network string, local, remote *SCTPAddr, init *SCTPInitMsg) (*SCTP
 	conn := &SCTPConn{
 		sock: int64(sock),
 	}
-	{
-		err := conn.SetInitMsg(init)
+	for {
+		err = conn.SetInitMsg(init)
 		if nil != err {
-			_ = conn.Close()
-			return nil, err
+			break
 		}
+		if nil != local {
+			err = SCTPBind(sock, local, SCTP_BINDX_ADD_ADDR)
+			if nil != err {
+				break
+			}
+		}
+		conn.assoc, err = SCTPConnect(sock, remote)
+        if nil != err {
+        	break
+		}
+		break
+	}
+	if nil != err {
+		_ = conn.Close()
+		return nil, err
 	}
 	return conn, nil
 }

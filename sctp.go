@@ -58,6 +58,41 @@ func SCTPSocket(family int) (int, error) {
 	}
 }
 
+func SCTPBind(sock int, addr *SCTPAddr, flags int) error {
+	var option uintptr
+	switch flags {
+	case SCTP_BINDX_ADD_ADDR:
+		option = SCTP_SOCKOPT_BINDX_ADD
+	case SCTP_BINDX_REM_ADDR:
+		option = SCTP_SOCKOPT_BINDX_REM
+	default:
+		return syscall.EINVAL
+	}
+
+	var (
+		buffer       = MakeSockaddr(addr)
+		err    error = nil
+	)
+	if len(buffer) > 0 {
+		_, _, err = syscall.Syscall6(
+			syscall.SYS_SETSOCKOPT,
+			uintptr(sock),
+			SOL_SCTP,
+			option,
+			uintptr(unsafe.Pointer(&buffer[0])),
+			unsafe.Sizeof(len(buffer)),
+			0,
+		)
+	} else {
+		err = syscall.EINVAL
+	}
+	return err
+}
+
+func SCTPConnect(sock int, addr *SCTPAddr) (int, error) {
+	return 0, nil
+}
+
 func AddrFamily(network string) int {
 	family := syscall.AF_INET6
 	switch network[len(network)-1] {
