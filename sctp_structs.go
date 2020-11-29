@@ -70,3 +70,18 @@ type SCTPGetAddrsOld struct {
 	Num     int32
 	Addrs   *SockAddr
 }
+type SCTPEventSubscribe struct {
+	DataIoEvent          uint8
+	AssociationEvent      uint8
+	AddressEvent          uint8
+	SendFailureEvent     uint8
+	PeerErrorEvent       uint8
+	ShutdownEvent         uint8
+	PartialDeliveryEvent uint8
+	AdaptationLayerEvent uint8
+	AuthenticationEvent   uint8
+	SenderDryEvent       uint8
+	StreamResetEvent     uint8
+	AssocResetEvent      uint8
+	StreamChangeEvent    uint8
+}

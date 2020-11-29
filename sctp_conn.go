@@ -77,14 +77,27 @@ func (conn *SCTPConn) SetWriteDeadline(t time.Time) error {
 	return nil
 }
 
+func (conn *SCTPConn) SetSubscribeEvents(events *SCTPEventSubscribe) error {
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_SETSOCKOPT,
+		uintptr(conn.sock),
+		SOL_SCTP,
+		SCTP_EVENTS,
+		uintptr(unsafe.Pointer(&events)),
+		unsafe.Sizeof(*events),
+		0,
+	)
+	return err
+}
+
 func (conn *SCTPConn) SetInitMsg(init *SCTPInitMsg) error {
 	_, _, err := syscall.Syscall6(
 		syscall.SYS_SETSOCKOPT,
 		uintptr(conn.sock),
 		SOL_SCTP,
 		SCTP_INITMSG,
-		uintptr(unsafe.Pointer(&init)),
-		unsafe.Sizeof(init),
+		uintptr(unsafe.Pointer(init)),
+		unsafe.Sizeof(*init),
 		0,
 	)
 	return err

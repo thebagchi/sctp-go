@@ -128,21 +128,6 @@ type SCTPStreamChangeEvent struct {
 	Instrms  uint16
 	Outstrms uint16
 }
-type SCTPEventSubscribe struct {
-	Data_io_event          uint8
-	Association_event      uint8
-	Address_event          uint8
-	Send_failure_event     uint8
-	Peer_error_event       uint8
-	Shutdown_event         uint8
-	Partial_delivery_event uint8
-	Adaptation_layer_event uint8
-	Authentication_event   uint8
-	Sender_dry_event       uint8
-	Stream_reset_event     uint8
-	Assoc_reset_event      uint8
-	Stream_change_event    uint8
-}
 type SCTPNotification [148]byte
 type SCTPNotificationHeader struct {
 	Type   uint16

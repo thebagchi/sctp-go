@@ -69,6 +69,16 @@ func TestSizes(t *testing.T) {
 			fmt.Println("SCTPGetAddrsOldSize: ", SCTPGetAddrsOldSize)
 		}
 	}
+	{
+		temp := &SCTPEventSubscribe{}
+		if unsafe.Sizeof(*temp) != SCTPEventSubscribeSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPEventSubscribeSize)
+			t.Error("SCTPEventSubscribe sizes don't match")
+		} else {
+			fmt.Println("SCTPEventSubscribeSize: ", SCTPEventSubscribeSize)
+		}
+	}
 }
 
 func TestPacking(t *testing.T) {
