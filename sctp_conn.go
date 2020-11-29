@@ -19,6 +19,26 @@ func NewSCTPConn(sock int) *SCTPConn {
 	}
 }
 
+func (conn *SCTPConn) GetPrimaryPeerAddr() (*SCTPAddr, error) {
+	param := &SCTPSetPeerPrimary{
+		AssocId: int32(0),
+	}
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(conn.sock),
+		syscall.IPPROTO_SCTP,
+		SCTP_SOCKOPT_CONNECTX3,
+		uintptr(unsafe.Pointer(param)),
+		unsafe.Sizeof(*param),
+		0,
+	)
+	if 0 != err {
+		return nil, err
+	}
+	addr := MakeSCTPAddr((*syscall.RawSockaddrAny)(unsafe.Pointer(&param.Addr)))
+	return addr, nil
+}
+
 func (conn *SCTPConn) Read(b []byte) (n int, err error) {
 	return 0, nil
 }

@@ -79,6 +79,36 @@ func TestSizes(t *testing.T) {
 			fmt.Println("SCTPEventSubscribeSize: ", SCTPEventSubscribeSize)
 		}
 	}
+	{
+		temp := &SockAddrStorage{}
+		if unsafe.Sizeof(*temp) != SockAddrStorageSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SockAddrStorageSize)
+			t.Error("SockAddrStorage sizes don't match")
+		} else {
+			fmt.Println("SockAddrStorageSize: ", SockAddrStorageSize)
+		}
+	}
+	{
+		temp := &SCTPSetPeerPrimary{}
+		if unsafe.Sizeof(*temp) != SCTPSetPeerPrimarySize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPSetPeerPrimarySize)
+			t.Error("SCTPSetPeerPrimary sizes don't match")
+		} else {
+			fmt.Println("SCTPSetPeerPrimarySize: ", SCTPSetPeerPrimarySize)
+		}
+	}
+	{
+		temp := &SCTPPrimaryAddr{}
+		if unsafe.Sizeof(*temp) != SCTPPrimaryAddrSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPPrimaryAddrSize)
+			t.Error("SCTPPrimaryAddr sizes don't match")
+		} else {
+			fmt.Println("SCTPPrimaryAddrSize: ", SCTPPrimaryAddrSize)
+		}
+	}
 }
 
 func TestPacking(t *testing.T) {

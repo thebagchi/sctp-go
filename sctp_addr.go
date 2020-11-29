@@ -5,6 +5,7 @@ import (
 	"net"
 	"strconv"
 	"syscall"
+	"unsafe"
 )
 
 type SCTPAddr struct {
@@ -83,4 +84,33 @@ func MakeSockaddr(addr *SCTPAddr) []byte {
 		}
 	}
 	return buffer
+}
+
+func MakeSCTPAddr(addr *syscall.RawSockaddrAny) *SCTPAddr {
+	if nil == addr {
+		return nil
+	}
+	switch addr.Addr.Family {
+	case syscall.AF_INET:
+		addr := (*syscall.RawSockaddrInet4)(unsafe.Pointer(addr))
+		ip := net.IP{}
+		copy(ip, addr.Addr[:])
+		return &SCTPAddr{
+			port: int(ntohs(addr.Port)),
+			addresses: []net.IP{
+				ip,
+			},
+		}
+	case syscall.AF_INET6:
+		addr := (*syscall.RawSockaddrInet6)(unsafe.Pointer(addr))
+		ip := net.IP{}
+		copy(ip, addr.Addr[:])
+		return &SCTPAddr{
+			port: int(ntohs(addr.Port)),
+			addresses: []net.IP{
+				ip,
+			},
+		}
+	}
+	return nil
 }

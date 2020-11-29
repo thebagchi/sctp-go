@@ -148,14 +148,6 @@ type SCTPAssocParams struct {
 	Local_rwnd               uint32
 	Cookie_life              uint32
 }
-type SCTPSetPeerPrimary struct {
-	AssocId  int32
-	Pad_cgo_0 [128]byte
-}
-type SCTPPrimaryAddr struct {
-	AssocId  int32
-	Pad_cgo_0 [128]byte
-}
 type SCTPSetAdaptation struct {
 	Adaptation_ind uint32
 }

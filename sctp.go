@@ -22,6 +22,14 @@ func htons(port uint16) uint16 {
 	return port
 }
 
+func ntohs(port uint16) uint16 {
+	if endian == binary.LittleEndian {
+		return (port << 8 & 0xff00) | (port >> 8 & 0xff)
+	}
+	return port
+}
+
+
 func Endianness() binary.ByteOrder {
 	i := uint16(1)
 	if *(*byte)(unsafe.Pointer(&i)) == 0 {

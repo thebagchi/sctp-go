@@ -72,16 +72,24 @@ type SCTPGetAddrsOld struct {
 }
 type SCTPEventSubscribe struct {
 	DataIoEvent          uint8
-	AssociationEvent      uint8
-	AddressEvent          uint8
+	AssociationEvent     uint8
+	AddressEvent         uint8
 	SendFailureEvent     uint8
 	PeerErrorEvent       uint8
-	ShutdownEvent         uint8
+	ShutdownEvent        uint8
 	PartialDeliveryEvent uint8
 	AdaptationLayerEvent uint8
-	AuthenticationEvent   uint8
+	AuthenticationEvent  uint8
 	SenderDryEvent       uint8
 	StreamResetEvent     uint8
 	AssocResetEvent      uint8
 	StreamChangeEvent    uint8
 }
+type SCTPSetPeerPrimary struct {
+	AssocId int32
+	Addr    [128]byte
+	// Cannot use SockAddrStorage as type for Addr.
+	// Inner structures have alignment requirement of 8 bytes.
+	// This structure has alignment requirement of 4 bytes.
+}
+type SCTPPrimaryAddr SCTPSetPeerPrimary
