@@ -126,6 +126,7 @@ func DialSCTP(network string, local, remote *SCTPAddr, init *SCTPInitMsg) (*SCTP
 		sock: int64(sock),
 	}
 	for {
+		_ = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1)
 		err = conn.SetInitMsg(init)
 		if nil != err {
 			break

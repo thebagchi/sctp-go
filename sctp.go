@@ -102,7 +102,7 @@ func SCTPConnect(sock int, addr *SCTPAddr) (int, error) {
 			Addrs:   (*SockAddr)(unsafe.Pointer(&buffer[0])),
 		}
 		_, _, err = syscall.Syscall6(
-			syscall.SYS_SETSOCKOPT,
+			syscall.SYS_GETSOCKOPT,
 			uintptr(sock),
 			syscall.IPPROTO_SCTP,
 			SCTP_SOCKOPT_CONNECTX3,
