@@ -152,6 +152,9 @@ func TestSizes(t *testing.T) {
 	{
 		fmt.Println("CMSG_SPACE(sizeof(SCTPSndRcvInfo)): ", syscall.CmsgSpace(SCTPSndRcvInfoSize))
 	}
+	{
+
+	}
 }
 
 func TestPacking(t *testing.T) {

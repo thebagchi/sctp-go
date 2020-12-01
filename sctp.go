@@ -3,6 +3,7 @@ package sctp_go
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/gob"
 	"syscall"
 	"unsafe"
 )
@@ -154,9 +155,31 @@ func AddrFamily(network string) int {
 	return family
 }
 
+func Clone(from, to interface{}) {
+	buffer := new(bytes.Buffer)
+	encoder := gob.NewEncoder(buffer)
+	decoder := gob.NewDecoder(buffer)
+	_ = encoder.Encode(from)
+	_ = decoder.Decode(to)
+}
+
 func ParseSndRcvInfo(info *SCTPSndRcvInfo, data []byte) {
 	if nil == info || len(data) == 0 {
 		return
 	}
+    messages, err := syscall.ParseSocketControlMessage(data)
+    if nil != err {
+		return
+	}
+	for _, message := range messages {
+		if message.Header.Level == IPPROTO_SCTP && message.Header.Type == SCTP_SNDRCV {
+			temp := (*SCTPSndRcvInfo)(unsafe.Pointer(&message.Data[0]))
+			Clone(temp, info)
+			break
+		}
+	}
+}
 
+func ParseNotification(data []byte) {
+	
 }
