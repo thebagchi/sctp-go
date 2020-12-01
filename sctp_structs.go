@@ -102,6 +102,11 @@ type SCTPGetAddrsOld struct {
 	Num     int32
 	Addrs   *SockAddr
 }
+type SCTPGetAddrs struct {
+	AssocId int32
+	Num     uint32
+	Addr    *SockAddr
+}
 type SCTPEventSubscribe struct {
 	DataIoEvent          uint8
 	AssociationEvent     uint8

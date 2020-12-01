@@ -100,10 +100,40 @@ func (conn *SCTPConn) Close() error {
 }
 
 func (conn *SCTPConn) LocalAddr() net.Addr {
+	data := make([]byte, 4096)
+	addrs := (*SCTPGetAddrs)(unsafe.Pointer(&data))
+	addrs.AssocId = 0
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(conn.sock),
+		syscall.IPPROTO_SCTP,
+		SCTP_GET_LOCAL_ADDRS,
+		uintptr(unsafe.Pointer(addrs)),
+		unsafe.Sizeof(len(data)),
+		0,
+	)
+	if 0 == err {
+		return FromSCTPGetAddrs(addrs)
+	}
 	return nil
 }
 
 func (conn *SCTPConn) RemoteAddr() net.Addr {
+	data := make([]byte, 4096)
+	addrs := (*SCTPGetAddrs)(unsafe.Pointer(&data))
+	addrs.AssocId = 0
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(conn.sock),
+		syscall.IPPROTO_SCTP,
+		SCTP_GET_PEER_ADDRS,
+		uintptr(unsafe.Pointer(addrs)),
+		unsafe.Sizeof(len(data)),
+		0,
+	)
+	if 0 == err {
+		return FromSCTPGetAddrs(addrs)
+	}
 	return nil
 }
 
@@ -132,7 +162,7 @@ func (conn *SCTPConn) SetSubscribeEvents(events *SCTPEventSubscribe) error {
 	return err
 }
 
-func (conn *SCTPConn) GetSubscribedEvents() (*SCTPEventSubscribe, error){
+func (conn *SCTPConn) GetSubscribedEvents() (*SCTPEventSubscribe, error) {
 	events := &SCTPEventSubscribe{}
 	_, _, err := syscall.Syscall6(
 		syscall.SYS_GETSOCKOPT,

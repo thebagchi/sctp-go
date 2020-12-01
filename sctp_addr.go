@@ -114,3 +114,32 @@ func FromSockAddrStorage(addr *SockAddrStorage) *SCTPAddr {
 	}
 	return nil
 }
+
+func FromSCTPGetAddrs(addr *SCTPGetAddrs) *SCTPAddr {
+	if nil != addr {
+		address := &SCTPAddr{
+			addresses: make([]net.IP, addr.Num),
+		}
+		ptr := unsafe.Pointer(addr.Addr)
+		for i := uint32(0); i < addr.Num;  i++ {
+			addr := (*SockAddr)(unsafe.Pointer(addr))
+			size := uintptr(0)
+			switch addr.Family {
+			case syscall.AF_INET:
+				addr := (*SockAddrIn)(unsafe.Pointer(addr))
+				address.port = int(ntohs(addr.Port))
+				copy(address.addresses[i], addr.Addr.Addr[:])
+				size = SockAddrInSize
+			case syscall.AF_INET6:
+				addr := (*SockAddrIn6)(unsafe.Pointer(addr))
+				address.port = int(ntohs(addr.Port))
+				copy(address.addresses[i], addr.Addr.Addr[:])
+				size = SockAddrIn6Size
+			default:
+				return nil
+			}
+			ptr = unsafe.Pointer(uintptr(ptr) + size * uintptr(i))
+		}
+	}
+	return nil
+}
