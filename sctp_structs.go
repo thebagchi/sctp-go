@@ -65,6 +65,38 @@ type SCTPSndRcvInfo struct {
 	CumTsn     uint32
 	AssocId    int32
 }
+type SCTPSndInfo struct {
+	Sid     uint16
+	Flags   uint16
+	Ppid    uint32
+	Context uint32
+	AssocId int32
+}
+type SCTPRcvInfo struct {
+	Sid     uint16
+	Ssn     uint16
+	Flags   uint16
+	Ppid    uint32
+	Tsn     uint32
+	CumTsn  uint32
+	Context uint32
+	AssocId int32
+}
+type SCTPNxtInfo struct {
+	Sid     uint16
+	Flags   uint16
+	Ppid    uint32
+	Length  uint32
+	AssocId int32
+}
+type SCTPPrInfo struct {
+	Policy uint16
+	Value  uint32
+}
+type SCTPAuthInfo struct {
+	KeyNumber uint16
+}
+type SCTPCmsgData [32]byte
 type SCTPGetAddrsOld struct {
 	AssocId int32
 	Num     int32
