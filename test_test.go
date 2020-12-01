@@ -3,6 +3,7 @@ package sctp_go
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/nokia/sctp"
 	"syscall"
 	"testing"
 	"unsafe"
@@ -152,9 +153,6 @@ func TestSizes(t *testing.T) {
 	{
 		fmt.Println("CMSG_SPACE(sizeof(SCTPSndRcvInfo)): ", syscall.CmsgSpace(SCTPSndRcvInfoSize))
 	}
-	{
-
-	}
 }
 
 func TestPacking(t *testing.T) {
@@ -170,4 +168,26 @@ func TestPacking(t *testing.T) {
 	fmt.Printf("%s", hex.Dump(buffer))
 	fmt.Println(len(buffer))
 	fmt.Println(CMsgHeaderSize)
+}
+
+func TestMakeSockaddr(t *testing.T) {
+	addr, err := MakeSCTPAddr("sctp4", "127.0.0.1:12345")
+	if nil != err {
+		fmt.Println("Error: ", err)
+		t.FailNow()
+	}
+	{
+		buffer := MakeSockaddr(addr)
+		fmt.Printf(hex.Dump(buffer))
+		fmt.Println(len(buffer))
+	}
+	{
+		addr, err := sctp.ResolveSCTPAddr("sctp4", "127.0.0.1:12345")
+		if nil != err {
+			fmt.Println("Error: ", err)
+		}
+		buffer := addr.ToRawSockAddrBuf()
+		fmt.Printf("%s", hex.Dump(buffer))
+		fmt.Println(len(buffer))
+	}
 }

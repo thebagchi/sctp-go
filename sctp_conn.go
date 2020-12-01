@@ -217,7 +217,7 @@ func DialSCTP(network string, local, remote *SCTPAddr, init *SCTPInitMsg) (*SCTP
 			Err:    net.InvalidAddrError("invalid remote addr"),
 		}
 	}
-	sock, err := SCTPSocket(AddrFamily(network))
+	sock, err := SCTPSocket(AddrFamily(network), syscall.SOCK_SEQPACKET)
 	if nil != err {
 		return nil, err
 	}

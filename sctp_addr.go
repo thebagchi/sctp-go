@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net"
 	"strconv"
+	"strings"
 	"syscall"
 	"unsafe"
 )
@@ -71,16 +72,15 @@ func MakeSockaddr(addr *SCTPAddr) []byte {
 			}
 			copy(sa.Addr[:], ip4)
 			buffer = append(buffer, Pack(sa)...)
+			continue
 		}
 		if ip6 := address.To16(); ip6 != nil {
-			if ip6 := address.To4(); ip6 != nil {
-				sa := syscall.RawSockaddrInet6{
-					Family: syscall.AF_INET6,
-					Port:   htons(uint16(addr.port)),
-				}
-				copy(sa.Addr[:], ip6)
-				buffer = append(buffer, Pack(sa)...)
+			sa := syscall.RawSockaddrInet6{
+				Family: syscall.AF_INET6,
+				Port:   htons(uint16(addr.port)),
 			}
+			copy(sa.Addr[:], ip6)
+			buffer = append(buffer, Pack(sa)...)
 		}
 	}
 	return buffer
@@ -142,4 +142,74 @@ func FromSCTPGetAddrs(addr *SCTPGetAddrs) *SCTPAddr {
 		}
 	}
 	return nil
+}
+
+func MakeSCTPAddr(network, addr string) (*SCTPAddr, error) {
+	switch network {
+	case "", "sctp":
+		network = "sctp"
+	case "sctp4":
+		network = "sctp"
+	case "sctp6":
+		network = "sctp"
+	default:
+		return nil, net.UnknownNetworkError(network)
+	}
+
+	if strings.LastIndex(addr, ":") < 0 {
+		return nil, &net.AddrError{
+			Err:  "missing port in address",
+			Addr: addr,
+		}
+	}
+
+	var (
+		index           = strings.LastIndex(addr, ":")
+		addrs           = strings.Split(addr[:index], "/")
+		port            = 0
+		err       error = nil
+		addresses       = make([]net.IP, 0)
+	)
+
+	if index < 0 || index == len(addr) {
+		return nil, &net.AddrError{
+			Err:  "missing port in address",
+			Addr: addr,
+		}
+	} else if port, err = net.LookupPort(network, addr[index+1:]); err != nil {
+		return nil, &net.AddrError{
+			Err:  "missing port in address: " + err.Error(),
+			Addr: addr,
+		}
+	}
+
+	for _, addr := range addrs {
+		if len(addr) == 0 {
+			if network == "sctp" {
+				addresses = append(addresses, net.IPv4zero)
+				continue
+			}
+			if network == "sctp6" {
+				addresses = append(addresses, net.IPv6zero)
+			}
+		} else {
+			address := net.ParseIP(addr)
+			if network == "sctp6" && address.To16() != nil {
+				addresses = append(addresses, address)
+				continue
+			}
+			if network == "sctp" && address.To4() != nil {
+				addresses = append(addresses, address)
+			}
+		}
+	}
+
+	if len(addresses) == 0 {
+		return nil, net.InvalidAddrError(addr)
+	}
+	address := &SCTPAddr{
+		addresses: addresses,
+		port:      port,
+	}
+	return address, nil
 }

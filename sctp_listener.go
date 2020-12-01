@@ -62,24 +62,26 @@ func ListenSCTP(network string, local *SCTPAddr, init *SCTPInitMsg) (*SCTPListen
 	)
 	for {
 		family := DetectAddrFamily(network)
-		sock, err = SCTPSocket(family)
+		sock, err = SCTPSocket(family, syscall.SOCK_STREAM)
 		if nil != err {
 			break
 		}
+		err = syscall.SetsockoptInt(sock, syscall.IPPROTO_IPV6, syscall.IPV6_V6ONLY, 0)
 		err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1)
 		if nil != err {
 			break
 		}
-		_, _, err = syscall.Syscall6(
+		_, _, errno := syscall.Syscall6(
 			syscall.SYS_SETSOCKOPT,
 			uintptr(sock),
 			SOL_SCTP,
 			SCTP_INITMSG,
 			uintptr(unsafe.Pointer(init)),
-			unsafe.Sizeof(*init),
+			uintptr(unsafe.Sizeof(*init)),
 			0,
 		)
-		if nil != err {
+		if 0 != errno {
+			err = errno
 			break
 		}
 		err = SCTPBind(sock, local, SCTP_BINDX_ADD_ADDR)

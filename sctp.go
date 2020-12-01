@@ -56,14 +56,14 @@ func Pack(v interface{}) []byte {
 	return buf.Bytes()
 }
 
-func SCTPSocket(family int) (int, error) {
+func SCTPSocket(family, flag int) (int, error) {
 	switch family {
-	case syscall.AF_INET6:
-		return syscall.Socket(syscall.AF_INET6, syscall.SOCK_SEQPACKET, syscall.IPPROTO_SCTP)
 	case syscall.AF_INET:
-		return syscall.Socket(syscall.AF_INET, syscall.SOCK_SEQPACKET, syscall.IPPROTO_SCTP)
+		return syscall.Socket(syscall.AF_INET, flag, syscall.IPPROTO_SCTP)
+	case syscall.AF_INET6:
+		fallthrough
 	default:
-		return syscall.Socket(syscall.AF_INET6, syscall.SOCK_SEQPACKET, syscall.IPPROTO_SCTP)
+		return syscall.Socket(syscall.AF_INET6, flag, syscall.IPPROTO_SCTP)
 	}
 }
 
@@ -83,15 +83,18 @@ func SCTPBind(sock int, addr *SCTPAddr, flags int) error {
 		err    error = nil
 	)
 	if len(buffer) > 0 {
-		_, _, err = syscall.Syscall6(
+		_, _, errno := syscall.Syscall6(
 			syscall.SYS_SETSOCKOPT,
 			uintptr(sock),
 			SOL_SCTP,
 			option,
 			uintptr(unsafe.Pointer(&buffer[0])),
-			unsafe.Sizeof(len(buffer)),
+			uintptr(len(buffer)),
 			0,
 		)
+		if 0 != errno {
+			err = errno
+		}
 	} else {
 		err = syscall.EINVAL
 	}
@@ -181,5 +184,5 @@ func ParseSndRcvInfo(info *SCTPSndRcvInfo, data []byte) {
 }
 
 func ParseNotification(data []byte) {
-	
+
 }
