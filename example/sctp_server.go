@@ -36,6 +36,8 @@ func main() {
 			if nil != err {
 				fmt.Println("Error: ", err)
 				continue
+			} else {
+				fmt.Println("New connection ...")
 			}
 			_ = conn
 		}

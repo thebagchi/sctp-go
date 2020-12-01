@@ -41,7 +41,10 @@ func (listener *SCTPListener) SetInitMsg(init *SCTPInitMsg) error {
 		unsafe.Sizeof(*init),
 		0,
 	)
-	return err
+	if 0 != err {
+		return err
+	}
+	return nil
 }
 
 func ListenSCTP(network string, local *SCTPAddr, init *SCTPInitMsg) (*SCTPListener, error) {

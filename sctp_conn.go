@@ -186,7 +186,10 @@ func (conn *SCTPConn) SetInitMsg(init *SCTPInitMsg) error {
 		unsafe.Sizeof(*init),
 		0,
 	)
-	return err
+	if 0 != err {
+		return err
+	}
+	return nil
 }
 
 func (conn *SCTPConn) ok() bool {
@@ -225,7 +228,11 @@ func DialSCTP(network string, local, remote *SCTPAddr, init *SCTPInitMsg) (*SCTP
 		sock: int64(sock),
 	}
 	for {
-		_ = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1)
+		err = syscall.SetsockoptInt(sock, syscall.IPPROTO_IPV6, syscall.IPV6_V6ONLY, 0)
+		err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1)
+		if nil != err {
+			break
+		}
 		err = conn.SetInitMsg(init)
 		if nil != err {
 			break

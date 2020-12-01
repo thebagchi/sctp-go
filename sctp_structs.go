@@ -100,12 +100,12 @@ type SCTPCmsgData [32]byte
 type SCTPGetAddrsOld struct {
 	AssocId int32
 	Num     int32
-	Addrs   *SockAddr
+	Addrs   uintptr
 }
 type SCTPGetAddrs struct {
 	AssocId int32
 	Num     uint32
-	Addr    *SockAddr
+	Addr    uintptr
 }
 type SCTPEventSubscribe struct {
 	DataIoEvent          uint8

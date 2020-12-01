@@ -111,28 +111,29 @@ func SCTPConnect(sock int, addr *SCTPAddr) (int, error) {
 		addrs := &SCTPGetAddrsOld{
 			AssocId: 0,
 			Num:     int32(len(buffer)),
-			Addrs:   (*SockAddr)(unsafe.Pointer(&buffer[0])),
+			Addrs:   uintptr(unsafe.Pointer(&buffer[0])),
 		}
-		_, _, err = syscall.Syscall6(
+		length := unsafe.Sizeof(*addr)
+		_, _, errno := syscall.Syscall6(
 			syscall.SYS_GETSOCKOPT,
 			uintptr(sock),
 			syscall.IPPROTO_SCTP,
 			SCTP_SOCKOPT_CONNECTX3,
 			uintptr(unsafe.Pointer(addrs)),
-			unsafe.Sizeof(*addrs),
+			uintptr(unsafe.Pointer(&length)),
 			0,
 		)
-		if nil == err {
+		if 0 == errno {
 			return int(addrs.AssocId), nil
 		} else {
-			if err == syscall.EINPROGRESS {
+			if errno == syscall.EINPROGRESS {
 				return int(addrs.AssocId), nil
 			}
-			if err != syscall.ENOPROTOOPT {
-				return 0, err
+			if errno != syscall.ENOPROTOOPT {
+				return 0, errno
 			}
 		}
-		assoc, _, err = syscall.Syscall6(
+		assoc, _, errno = syscall.Syscall6(
 			syscall.SYS_SETSOCKOPT,
 			uintptr(sock),
 			syscall.IPPROTO_SCTP,
@@ -141,6 +142,9 @@ func SCTPConnect(sock int, addr *SCTPAddr) (int, error) {
 			uintptr(len(buffer)),
 			0,
 		)
+		if 0 != errno {
+			err = errno
+		}
 	} else {
 		return 0, syscall.EINVAL
 	}
