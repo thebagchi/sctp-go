@@ -108,15 +108,15 @@ func (conn *SCTPConn) RemoteAddr() net.Addr {
 }
 
 func (conn *SCTPConn) SetDeadline(t time.Time) error {
-	return nil
+	return syscall.ENOPROTOOPT
 }
 
 func (conn *SCTPConn) SetReadDeadline(t time.Time) error {
-	return nil
+	return syscall.ENOPROTOOPT
 }
 
 func (conn *SCTPConn) SetWriteDeadline(t time.Time) error {
-	return nil
+	return syscall.ENOPROTOOPT
 }
 
 func (conn *SCTPConn) SetSubscribeEvents(events *SCTPEventSubscribe) error {
@@ -130,6 +130,20 @@ func (conn *SCTPConn) SetSubscribeEvents(events *SCTPEventSubscribe) error {
 		0,
 	)
 	return err
+}
+
+func (conn *SCTPConn) GetSubscribedEvents() (*SCTPEventSubscribe, error){
+	events := &SCTPEventSubscribe{}
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(conn.sock),
+		SOL_SCTP,
+		SCTP_EVENTS,
+		uintptr(unsafe.Pointer(&events)),
+		unsafe.Sizeof(*events),
+		0,
+	)
+	return events, err
 }
 
 func (conn *SCTPConn) SetInitMsg(init *SCTPInitMsg) error {
