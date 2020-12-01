@@ -90,6 +90,46 @@ func TestSizes(t *testing.T) {
 		}
 	}
 	{
+		temp := &SockAddrIn{}
+		if unsafe.Sizeof(*temp) != SockAddrInSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SockAddrInSize)
+			t.Error("SockAddrIn sizes don't match")
+		} else {
+			fmt.Println("SockAddrInSize: ", SockAddrInSize)
+		}
+	}
+	{
+		temp := &SockAddrIn6{}
+		if unsafe.Sizeof(*temp) != SockAddrIn6Size {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SockAddrIn6Size)
+			t.Error("SockAddrIn6 sizes don't match")
+		} else {
+			fmt.Println("SockAddrIn6Size: ", SockAddrIn6Size)
+		}
+	}
+	{
+		temp := &InAddr{}
+		if unsafe.Sizeof(*temp) != InAddrSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(InAddrSize)
+			t.Error("InAddr sizes don't match")
+		} else {
+			fmt.Println("InAddrSize: ", InAddrSize)
+		}
+	}
+	{
+		temp := &In6Addr{}
+		if unsafe.Sizeof(*temp) != In6AddrSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(In6AddrSize)
+			t.Error("In6AddrSize sizes don't match")
+		} else {
+			fmt.Println("In6AddrSize: ", In6AddrSize)
+		}
+	}
+	{
 		temp := &SCTPSetPeerPrimary{}
 		if unsafe.Sizeof(*temp) != SCTPSetPeerPrimarySize {
 			fmt.Println(unsafe.Sizeof(*temp))

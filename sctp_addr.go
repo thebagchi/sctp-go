@@ -86,15 +86,15 @@ func MakeSockaddr(addr *SCTPAddr) []byte {
 	return buffer
 }
 
-func MakeSCTPAddr(addr *syscall.RawSockaddrAny) *SCTPAddr {
+func FromSockAddrStorage(addr *SockAddrStorage) *SCTPAddr {
 	if nil == addr {
 		return nil
 	}
-	switch addr.Addr.Family {
+	switch addr.Family {
 	case syscall.AF_INET:
-		addr := (*syscall.RawSockaddrInet4)(unsafe.Pointer(addr))
+		addr := (*SockAddrIn)(unsafe.Pointer(addr))
 		ip := net.IP{}
-		copy(ip, addr.Addr[:])
+		copy(ip, addr.Addr.Addr[:])
 		return &SCTPAddr{
 			port: int(ntohs(addr.Port)),
 			addresses: []net.IP{
@@ -102,9 +102,9 @@ func MakeSCTPAddr(addr *syscall.RawSockaddrAny) *SCTPAddr {
 			},
 		}
 	case syscall.AF_INET6:
-		addr := (*syscall.RawSockaddrInet6)(unsafe.Pointer(addr))
+		addr := (*SockAddrIn6)(unsafe.Pointer(addr))
 		ip := net.IP{}
-		copy(ip, addr.Addr[:])
+		copy(ip, addr.Addr.Addr[:])
 		return &SCTPAddr{
 			port: int(ntohs(addr.Port)),
 			addresses: []net.IP{

@@ -20,7 +20,7 @@ type CMsgHeader struct {
 	Type  int32
 }
 type InAddr struct {
-	Addr uint32
+	Addr [4]byte
 }
 type In6Addr struct {
 	Addr [16]byte

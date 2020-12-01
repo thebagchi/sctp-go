@@ -27,7 +27,7 @@ func (conn *SCTPConn) GetPrimaryPeerAddr() (*SCTPAddr, error) {
 		syscall.SYS_GETSOCKOPT,
 		uintptr(conn.sock),
 		syscall.IPPROTO_SCTP,
-		SCTP_SOCKOPT_CONNECTX3,
+		SCTP_PRIMARY_ADDR,
 		uintptr(unsafe.Pointer(param)),
 		unsafe.Sizeof(*param),
 		0,
@@ -35,7 +35,7 @@ func (conn *SCTPConn) GetPrimaryPeerAddr() (*SCTPAddr, error) {
 	if 0 != err {
 		return nil, err
 	}
-	addr := MakeSCTPAddr((*syscall.RawSockaddrAny)(unsafe.Pointer(&param.Addr)))
+	addr := FromSockAddrStorage((*SockAddrStorage)(unsafe.Pointer(&param.Addr)))
 	return addr, nil
 }
 
