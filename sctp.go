@@ -153,3 +153,10 @@ func AddrFamily(network string) int {
 	}
 	return family
 }
+
+func ParseSndRcvInfo(info *SCTPSndRcvInfo, data []byte) {
+	if nil == info || len(data) == 0 {
+		return
+	}
+
+}

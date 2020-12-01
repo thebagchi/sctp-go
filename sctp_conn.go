@@ -43,8 +43,21 @@ func (conn *SCTPConn) Read(b []byte) (n int, err error) {
 	return 0, nil
 }
 
+func (conn *SCTPConn) RecvMsg(b []byte, info *SCTPSndRcvInfo, flags *int) (n int, err error) {
+	oob := make([]byte, syscall.CmsgSpace(SCTPSndRcvInfoSize))
+	n, noob, flag, _, err := syscall.Recvmsg(int(conn.sock), b, oob, 0)
+	if nil != err {
+		return n, err
+	}
+	*flags = flag
+	if noob > 0 {
+		ParseSndRcvInfo(info, oob[:noob])
+	}
+	return n, nil
+}
+
 func (conn *SCTPConn) Write(b []byte) (n int, err error) {
-	return 0, nil
+	return conn.SendMsg(b, nil)
 }
 
 func (conn *SCTPConn) SendMsg(b []byte, info *SCTPSndRcvInfo) (int, error) {
@@ -171,8 +184,8 @@ func DialSCTP(network string, local, remote *SCTPAddr, init *SCTPInitMsg) (*SCTP
 			}
 		}
 		conn.assoc, err = SCTPConnect(sock, remote)
-        if nil != err {
-        	break
+		if nil != err {
+			break
 		}
 		break
 	}
