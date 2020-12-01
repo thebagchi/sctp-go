@@ -40,7 +40,16 @@ func (conn *SCTPConn) GetPrimaryPeerAddr() (*SCTPAddr, error) {
 }
 
 func (conn *SCTPConn) Read(b []byte) (n int, err error) {
-	return 0, nil
+	var (
+		flags = 0
+		info  = &SCTPSndRcvInfo{}
+	)
+	for {
+		n, err = conn.RecvMsg(b, info, &flags)
+		if flags == SCTP_MSG_NOTIFICATION {
+			return n, err
+		}
+	}
 }
 
 func (conn *SCTPConn) RecvMsg(b []byte, info *SCTPSndRcvInfo, flags *int) (n int, err error) {
