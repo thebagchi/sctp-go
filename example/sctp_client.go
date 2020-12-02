@@ -63,5 +63,4 @@ func main() {
 	} else {
 		fmt.Println(fmt.Sprintf("Sent %d bytes", length))
 	}
-
 }
