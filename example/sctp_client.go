@@ -2,26 +2,26 @@ package main
 
 import (
 	"fmt"
-	sctpgo "github.com/thebagchi/sctp-go"
+	sctp_go "github.com/thebagchi/sctp-go"
 	"os"
 )
 
 func main() {
-	local, err := sctpgo.MakeSCTPAddr("sctp4", "127.0.0.1:54321")
+	local, err := sctp_go.MakeSCTPAddr("sctp4", "127.0.0.1:54321")
 	if nil != err {
 		fmt.Println("Error: ", err)
 		os.Exit(1)
 	}
-	remote, err := sctpgo.MakeSCTPAddr("sctp4", "127.0.0.1:12345")
+	remote, err := sctp_go.MakeSCTPAddr("sctp4", "127.0.0.1:12345")
 	if nil != err {
 		fmt.Println("Error: ", err)
 		os.Exit(2)
 	}
-	conn, err := sctpgo.DialSCTP(
+	conn, err := sctp_go.DialSCTP(
 		"sctp4",
 		local,
 		remote,
-		&sctpgo.SCTPInitMsg{
+		&sctp_go.SCTPInitMsg{
 			NumOutStreams:  0xFFFF,
 			MaxInStreams:   0,
 			MaxAttempts:    0,
@@ -51,4 +51,13 @@ func main() {
 	} else {
 		fmt.Println("Error: local addr not received")
 	}
+
+	len, err := conn.SendMsg([]byte("HELLO WORLD"), nil)
+
+	if nil != err {
+		fmt.Println("Error: ", err)
+	} else {
+		fmt.Println(fmt.Sprintf("Sent %d bytes", len))
+	}
+
 }
