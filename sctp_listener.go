@@ -11,6 +11,24 @@ type SCTPListener struct {
 }
 
 func (listener *SCTPListener) Addr() net.Addr {
+	var (
+		data   = make([]byte, 4096)
+		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data))
+		length = len(data)
+	)
+	addrs.AssocId = 0
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(listener.sock),
+		syscall.IPPROTO_SCTP,
+		SCTP_GET_LOCAL_ADDRS,
+		uintptr(unsafe.Pointer(addrs)),
+		uintptr(unsafe.Pointer(&length)),
+		0,
+	)
+	if 0 == err {
+		return FromSCTPGetAddrs(addrs)
+	}
 	return nil
 }
 

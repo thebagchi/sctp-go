@@ -31,15 +31,21 @@ func main() {
 
 		defer server.Close()
 
+		if local := server.Addr(); nil != local {
+			fmt.Println("Addr: ", local)
+		} else {
+			fmt.Println("Error: local addr not received")
+		}
+
 		for {
 			conn, err := server.AcceptSCTP()
 			if nil != err {
 				fmt.Println("Error: ", err)
 				continue
-			} else {
-				fmt.Println("New connection ...")
 			}
-			_ = conn
+			if remote := conn.RemoteAddr(); nil != remote {
+				fmt.Println("New connection from: ", remote)
+			}
 		}
 	}
 }

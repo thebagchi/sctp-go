@@ -47,7 +47,7 @@ func main() {
 	}
 
 	if local := conn.LocalAddr(); nil != local {
-		fmt.Println("Peer: ", local)
+		fmt.Println("Local: ", local)
 	} else {
 		fmt.Println("Error: local addr not received")
 	}
