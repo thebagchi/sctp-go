@@ -157,7 +157,7 @@ func (conn *SCTPConn) SetWriteDeadline(t time.Time) error {
 	return syscall.ENOPROTOOPT
 }
 
-func (conn *SCTPConn) SetSubscribeEvents(events *SCTPEventSubscribe) error {
+func (conn *SCTPConn) SetEventSubscribe(events *SCTPEventSubscribe) error {
 	_, _, err := syscall.Syscall6(
 		syscall.SYS_SETSOCKOPT,
 		uintptr(conn.sock),
@@ -170,7 +170,7 @@ func (conn *SCTPConn) SetSubscribeEvents(events *SCTPEventSubscribe) error {
 	return err
 }
 
-func (conn *SCTPConn) GetSubscribedEvents() (*SCTPEventSubscribe, error) {
+func (conn *SCTPConn) GetEventSubscribe() (*SCTPEventSubscribe, error) {
 	events := &SCTPEventSubscribe{}
 	_, _, err := syscall.Syscall6(
 		syscall.SYS_GETSOCKOPT,
@@ -198,6 +198,62 @@ func (conn *SCTPConn) SetInitMsg(init *SCTPInitMsg) error {
 		return err
 	}
 	return nil
+}
+
+func (conn *SCTPConn) GetInitMsg() (*SCTPInitMsg, error) {
+	var (
+		init   = &SCTPInitMsg{}
+		length = unsafe.Sizeof(*init)
+	)
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(conn.sock),
+		SOL_SCTP,
+		SCTP_INITMSG,
+		uintptr(unsafe.Pointer(init)),
+		uintptr(unsafe.Pointer(&length)),
+		0,
+	)
+	if 0 != err {
+		return nil, err
+	}
+	return init, nil
+}
+
+func (conn *SCTPConn) SetDefaultSendParam(param *SCTPSndRcvInfo) error {
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_SETSOCKOPT,
+		uintptr(conn.sock),
+		SOL_SCTP,
+		SCTP_DEFAULT_SEND_PARAM,
+		uintptr(unsafe.Pointer(param)),
+		unsafe.Sizeof(*param),
+		0,
+	)
+	if 0 != err {
+		return err
+	}
+	return nil
+}
+
+func (conn *SCTPConn) GetDefaultSendParam() (*SCTPSndRcvInfo, error) {
+	var (
+		param  = &SCTPSndRcvInfo{}
+		length = unsafe.Sizeof(*param)
+	)
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_SETSOCKOPT,
+		uintptr(conn.sock),
+		SOL_SCTP,
+		SCTP_DEFAULT_SEND_PARAM,
+		uintptr(unsafe.Pointer(param)),
+		uintptr(unsafe.Pointer(&length)),
+		0,
+	)
+	if 0 != err {
+		return nil, err
+	}
+	return param, nil
 }
 
 func (conn *SCTPConn) ok() bool {

@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	sctp_go "github.com/thebagchi/sctp-go"
+	sctp "github.com/thebagchi/sctp-go"
 	"os"
 )
 
-func HandleClient(conn *sctp_go.SCTPConn) {
+func HandleClient(conn *sctp.SCTPConn) {
 	if nil == conn {
 		return
 	}
@@ -16,7 +16,7 @@ func HandleClient(conn *sctp_go.SCTPConn) {
 		flag = 0
 	)
 	for {
-		len, err := conn.RecvMsg(data, &sctp_go.SCTPSndRcvInfo{}, &flag)
+		len, err := conn.RecvMsg(data, &sctp.SCTPSndRcvInfo{}, &flag)
 		if nil != err {
 			fmt.Println("Error: ", err)
 			break
@@ -34,16 +34,16 @@ func HandleClient(conn *sctp_go.SCTPConn) {
 
 func main() {
 	if true {
-		addr, err := sctp_go.MakeSCTPAddr("sctp4", "127.0.0.1:12345")
+		addr, err := sctp.MakeSCTPAddr("sctp4", "127.0.0.1:12345")
 		if nil != err {
 			fmt.Println("Error: ", err)
 			os.Exit(1)
 		}
 
-		server, err := sctp_go.ListenSCTP(
+		server, err := sctp.ListenSCTP(
 			"sctp4",
 			addr,
-			&sctp_go.SCTPInitMsg{
+			&sctp.SCTPInitMsg{
 				NumOutStreams:  0xffff,
 				MaxInStreams:   0,
 				MaxAttempts:    0,
