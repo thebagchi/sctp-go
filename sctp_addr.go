@@ -93,22 +93,20 @@ func FromSockAddrStorage(addr *SockAddrStorage) *SCTPAddr {
 	switch addr.Family {
 	case syscall.AF_INET:
 		addr := (*SockAddrIn)(unsafe.Pointer(addr))
-		ip := net.IP{}
-		copy(ip, addr.Addr.Addr[:])
 		return &SCTPAddr{
 			port: int(ntohs(addr.Port)),
 			addresses: []net.IP{
-				ip,
+				addr.Addr.Addr[:],
 			},
 		}
 	case syscall.AF_INET6:
 		addr := (*SockAddrIn6)(unsafe.Pointer(addr))
-		ip := net.IP{}
+		ip := net.IPv6zero
 		copy(ip, addr.Addr.Addr[:])
 		return &SCTPAddr{
 			port: int(ntohs(addr.Port)),
 			addresses: []net.IP{
-				ip,
+				addr.Addr.Addr[:],
 			},
 		}
 	}
@@ -120,26 +118,27 @@ func FromSCTPGetAddrs(addr *SCTPGetAddrs) *SCTPAddr {
 		address := &SCTPAddr{
 			addresses: make([]net.IP, addr.Num),
 		}
-		ptr := unsafe.Pointer(addr.Addr)
+		ptr := unsafe.Pointer(uintptr(unsafe.Pointer(addr)) + unsafe.Sizeof(*addr))
 		for i := uint32(0); i < addr.Num;  i++ {
-			addr := (*SockAddr)(unsafe.Pointer(addr))
+			addr := (*SockAddr)(unsafe.Pointer(ptr))
 			size := uintptr(0)
 			switch addr.Family {
 			case syscall.AF_INET:
 				addr := (*SockAddrIn)(unsafe.Pointer(addr))
 				address.port = int(ntohs(addr.Port))
-				copy(address.addresses[i], addr.Addr.Addr[:])
+				address.addresses[i] = addr.Addr.Addr[:]
 				size = SockAddrInSize
 			case syscall.AF_INET6:
 				addr := (*SockAddrIn6)(unsafe.Pointer(addr))
 				address.port = int(ntohs(addr.Port))
-				copy(address.addresses[i], addr.Addr.Addr[:])
+				address.addresses[i] = addr.Addr.Addr[:]
 				size = SockAddrIn6Size
 			default:
 				return nil
 			}
 			ptr = unsafe.Pointer(uintptr(ptr) + size * uintptr(i))
 		}
+		return address
 	}
 	return nil
 }

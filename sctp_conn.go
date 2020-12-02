@@ -20,16 +20,17 @@ func NewSCTPConn(sock int) *SCTPConn {
 }
 
 func (conn *SCTPConn) GetPrimaryPeerAddr() (*SCTPAddr, error) {
-	param := &SCTPSetPeerPrimary{
+	param := &SCTPPrimaryAddr{
 		AssocId: int32(0),
 	}
+	length := unsafe.Sizeof(*param)
 	_, _, err := syscall.Syscall6(
 		syscall.SYS_GETSOCKOPT,
 		uintptr(conn.sock),
 		syscall.IPPROTO_SCTP,
 		SCTP_PRIMARY_ADDR,
 		uintptr(unsafe.Pointer(param)),
-		unsafe.Sizeof(*param),
+		uintptr(unsafe.Pointer(&length)),
 		0,
 	)
 	if 0 != err {
@@ -100,8 +101,11 @@ func (conn *SCTPConn) Close() error {
 }
 
 func (conn *SCTPConn) LocalAddr() net.Addr {
-	data := make([]byte, 4096)
-	addrs := (*SCTPGetAddrs)(unsafe.Pointer(&data))
+	var (
+		data   = make([]byte, 4096)
+		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data))
+		length = len(data)
+	)
 	addrs.AssocId = 0
 	_, _, err := syscall.Syscall6(
 		syscall.SYS_GETSOCKOPT,
@@ -109,7 +113,7 @@ func (conn *SCTPConn) LocalAddr() net.Addr {
 		syscall.IPPROTO_SCTP,
 		SCTP_GET_LOCAL_ADDRS,
 		uintptr(unsafe.Pointer(addrs)),
-		unsafe.Sizeof(len(data)),
+		uintptr(unsafe.Pointer(&length)),
 		0,
 	)
 	if 0 == err {
@@ -119,16 +123,20 @@ func (conn *SCTPConn) LocalAddr() net.Addr {
 }
 
 func (conn *SCTPConn) RemoteAddr() net.Addr {
-	data := make([]byte, 4096)
-	addrs := (*SCTPGetAddrs)(unsafe.Pointer(&data))
+	var (
+		data   = make([]byte, 4096)
+		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data))
+		length = len(data)
+	)
 	addrs.AssocId = 0
+
 	_, _, err := syscall.Syscall6(
 		syscall.SYS_GETSOCKOPT,
 		uintptr(conn.sock),
 		syscall.IPPROTO_SCTP,
 		SCTP_GET_PEER_ADDRS,
 		uintptr(unsafe.Pointer(addrs)),
-		unsafe.Sizeof(len(data)),
+		uintptr(unsafe.Pointer(&length)),
 		0,
 	)
 	if 0 == err {
@@ -220,7 +228,8 @@ func DialSCTP(network string, local, remote *SCTPAddr, init *SCTPInitMsg) (*SCTP
 			Err:    net.InvalidAddrError("invalid remote addr"),
 		}
 	}
-	sock, err := SCTPSocket(AddrFamily(network), syscall.SOCK_SEQPACKET)
+	//syscall.SOCK_SEQPACKET vs syscall.SOCK_STREAM
+	sock, err := SCTPSocket(AddrFamily(network), syscall.SOCK_STREAM)
 	if nil != err {
 		return nil, err
 	}

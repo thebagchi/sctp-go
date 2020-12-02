@@ -65,6 +65,7 @@ func ListenSCTP(network string, local *SCTPAddr, init *SCTPInitMsg) (*SCTPListen
 	)
 	for {
 		family := DetectAddrFamily(network)
+		//syscall.SOCK_SEQPACKET vs syscall.SOCK_STREAM
 		sock, err = SCTPSocket(family, syscall.SOCK_STREAM)
 		if nil != err {
 			break

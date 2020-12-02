@@ -105,7 +105,7 @@ type SCTPGetAddrsOld struct {
 type SCTPGetAddrs struct {
 	AssocId int32
 	Num     uint32
-	Addr    uintptr
+	// Addr    uintptr
 }
 type SCTPEventSubscribe struct {
 	DataIoEvent          uint8
