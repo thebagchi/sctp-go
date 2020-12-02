@@ -1,1 +1,4 @@
-#Using sctp in golang.
+# Using sctp in golang.
+
+### See example/sctp_server.go for server implementation.
+### See example/sctp_client.go for client implementation.
