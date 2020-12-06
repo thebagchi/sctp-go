@@ -204,14 +204,7 @@ type SCTPAssocStats struct {
 	Octrlchunks    uint64
 	Ictrlchunks    uint64
 }
-type SCTPPeelOffArg struct {
-	Associd int32
-	Sd      int32
-}
-type SCTPPeelOffFlagsArg struct {
-	Arg   SCTPPeelOffArg
-	Flags uint32
-}
+
 type SCTPPeerAddrThresholds struct {
 	AssocId   int32
 	Address    SockAddrStorage

@@ -151,6 +151,54 @@ func SCTPConnect(sock int, addr *SCTPAddr) (int, error) {
 	return int(assoc), err
 }
 
+func SCTPPeelOffFlag(sock, assoc, flags int) (*SCTPConn, error) {
+	if flags == 0 {
+		return SCTPPeelOff(sock, assoc)
+	}
+	params := &SCTPPeelOffFlagsArg{
+		Arg: SCTPPeelOffArg{
+			AssocId: int32(assoc),
+			Sd:      0,
+		},
+		Flags: uint32(flags),
+	}
+	length := unsafe.Sizeof(*params)
+	_, _, errno := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(sock),
+		syscall.IPPROTO_SCTP,
+		SCTP_SOCKOPT_PEELOFF_FLAGS,
+		uintptr(unsafe.Pointer(params)),
+		uintptr(unsafe.Pointer(&length)),
+		0,
+	)
+	if 0 != errno {
+		return nil, errno
+	}
+	return NewSCTPConn(int(params.Arg.Sd)), nil
+}
+
+func SCTPPeelOff(sock, assoc int) (*SCTPConn, error) {
+	params := &SCTPPeelOffArg{
+		AssocId: int32(assoc),
+		Sd:      0,
+	}
+	length := unsafe.Sizeof(*params)
+	_, _, errno := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(sock),
+		syscall.IPPROTO_SCTP,
+		SCTP_SOCKOPT_PEELOFF,
+		uintptr(unsafe.Pointer(params)),
+		uintptr(unsafe.Pointer(&length)),
+		0,
+	)
+	if 0 != errno {
+		return nil, errno
+	}
+	return NewSCTPConn(int(params.Sd)), nil
+}
+
 func AddrFamily(network string) int {
 	family := syscall.AF_INET6
 	switch network[len(network)-1] {

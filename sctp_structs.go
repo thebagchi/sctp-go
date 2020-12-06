@@ -130,3 +130,11 @@ type SCTPSetPeerPrimary struct {
 	// This structure has alignment requirement of 4 bytes.
 }
 type SCTPPrimaryAddr SCTPSetPeerPrimary
+type SCTPPeelOffArg struct {
+	AssocId int32
+	Sd      int32
+}
+type SCTPPeelOffFlagsArg struct {
+	Arg   SCTPPeelOffArg
+	Flags uint32
+}
