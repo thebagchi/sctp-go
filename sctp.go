@@ -238,7 +238,10 @@ func ParseSndRcvInfo(info *SCTPSndRcvInfo, data []byte) {
 
 func ParseNotification(data []byte) (*Notification, error){
 	if len(data) < SCTPNotificationHeaderSize {
-		return nil, fmt.Errorf("data too small")
+		return nil, fmt.Errorf("invalid data len, too small")
+	}
+	if len(data) > SCTPNotificationSize {
+		return nil, fmt.Errorf("invalid data len, too large")
 	}
 	temp := (*SCTPNotificationHeader)(unsafe.Pointer(&data[0]))
 	switch temp.Type() {
