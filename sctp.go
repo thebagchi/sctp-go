@@ -236,6 +236,58 @@ func ParseSndRcvInfo(info *SCTPSndRcvInfo, data []byte) {
 	}
 }
 
+func ParseDataIOEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParseAssocChangeEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParsePeerAddrChangeEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParseSendFailedEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParseRemoteErrorEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParseShutdownEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParsePartialDeliveryEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParseAdaptationIndicationEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParseAuthenticationEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParseSenderDryEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParsStreamResetEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParseAssocResetEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
+func ParseStreamChangeEvent(data []byte) (*Notification, error) {
+	return nil, nil
+}
+
 func ParseNotification(data []byte) (*Notification, error){
 	if len(data) < SCTPNotificationHeaderSize {
 		return nil, fmt.Errorf("invalid data len, too small")
@@ -245,7 +297,19 @@ func ParseNotification(data []byte) (*Notification, error){
 	}
 	temp := (*SCTPNotificationHeader)(unsafe.Pointer(&data[0]))
 	switch temp.Type() {
-	
+	case SCTP_DATA_IO_EVENT:
+	case SCTP_ASSOC_CHANGE:
+	case SCTP_PEER_ADDR_CHANGE:
+	case SCTP_SEND_FAILED:
+	case SCTP_REMOTE_ERROR:
+	case SCTP_SHUTDOWN_EVENT:
+	case SCTP_PARTIAL_DELIVERY_EVENT:
+	case SCTP_ADAPTATION_INDICATION:
+	case SCTP_AUTHENTICATION_EVENT:
+	case SCTP_SENDER_DRY_EVENT:
+	case SCTP_STREAM_RESET_EVENT:
+	case SCTP_ASSOC_RESET_EVENT:
+	case SCTP_STREAM_CHANGE_EVENT:
 	}
 	return nil, fmt.Errorf("invalid notification type")
 }
