@@ -150,6 +150,26 @@ func TestSizes(t *testing.T) {
 		}
 	}
 	{
+		temp := &SCTPPeelOffArg{}
+		if unsafe.Sizeof(*temp) != SCTPPeelOffArgSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPPeelOffArgSize)
+			t.Error("SCTPPeelOffArg sizes don't match")
+		} else {
+			fmt.Println("SCTPPeelOffArgSize: ", SCTPPeelOffArgSize)
+		}
+	}
+	{
+		temp := &SCTPPeelOffFlagsArg{}
+		if unsafe.Sizeof(*temp) != SCTPPeelOffFlagsArgSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPPeelOffFlagsArgSize)
+			t.Error("SCTPPeelOffFlagsArg sizes don't match")
+		} else {
+			fmt.Println("SCTPPeelOffFlagsArgSize: ", SCTPPeelOffFlagsArgSize)
+		}
+	}
+	{
 		fmt.Println("CMSG_SPACE(sizeof(SCTPSndRcvInfo)): ", syscall.CmsgSpace(SCTPSndRcvInfoSize))
 	}
 }
