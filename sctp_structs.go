@@ -148,6 +148,7 @@ type SCTPNotificationHeader struct {
 	_Flags  uint16
 	_Length uint32
 }
+
 func (n *SCTPNotificationHeader) Type() uint16 {
 	return n._Type
 }

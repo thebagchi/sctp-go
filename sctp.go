@@ -31,7 +31,6 @@ func ntohs(port uint16) uint16 {
 	return port
 }
 
-
 func Endianness() binary.ByteOrder {
 	i := uint16(1)
 	if *(*byte)(unsafe.Pointer(&i)) == 0 {
@@ -223,8 +222,8 @@ func ParseSndRcvInfo(info *SCTPSndRcvInfo, data []byte) {
 	if nil == info || len(data) == 0 {
 		return
 	}
-    messages, err := syscall.ParseSocketControlMessage(data)
-    if nil != err {
+	messages, err := syscall.ParseSocketControlMessage(data)
+	if nil != err {
 		return
 	}
 	for _, message := range messages {
@@ -288,7 +287,7 @@ func ParseStreamChangeEvent(data []byte) (*Notification, error) {
 	return nil, nil
 }
 
-func ParseNotification(data []byte) (*Notification, error){
+func ParseNotification(data []byte) (*Notification, error) {
 	if len(data) < SCTPNotificationHeaderSize {
 		return nil, fmt.Errorf("invalid data len, too small")
 	}

@@ -119,7 +119,7 @@ func FromSCTPGetAddrs(addr *SCTPGetAddrs) *SCTPAddr {
 			addresses: make([]net.IP, addr.Num),
 		}
 		ptr := unsafe.Pointer(uintptr(unsafe.Pointer(addr)) + unsafe.Sizeof(*addr))
-		for i := uint32(0); i < addr.Num;  i++ {
+		for i := uint32(0); i < addr.Num; i++ {
 			addr := (*SockAddr)(unsafe.Pointer(ptr))
 			size := uintptr(0)
 			switch addr.Family {
@@ -136,7 +136,7 @@ func FromSCTPGetAddrs(addr *SCTPGetAddrs) *SCTPAddr {
 			default:
 				return nil
 			}
-			ptr = unsafe.Pointer(uintptr(ptr) + size * uintptr(i))
+			ptr = unsafe.Pointer(uintptr(ptr) + size*uintptr(i))
 		}
 		return address
 	}

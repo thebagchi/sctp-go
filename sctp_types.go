@@ -11,36 +11,36 @@ type SCTPAssocChange struct {
 	Error            uint16
 	Outbound_streams uint16
 	Inbound_streams  uint16
-	AssocId         int32
+	AssocId          int32
 }
 type SCTPPAddrChange struct {
-	Type     uint16
-	Flags    uint16
-	Length   uint32
-	Aaddr    SockAddrStorage
-	State    int32
-	Error    int32
+	Type    uint16
+	Flags   uint16
+	Length  uint32
+	Aaddr   SockAddrStorage
+	State   int32
+	Error   int32
 	AssocId int32
 }
 type SCTPRemoteError struct {
-	Type     uint16
-	Flags    uint16
-	Length   uint32
-	Error    uint16
+	Type    uint16
+	Flags   uint16
+	Length  uint32
+	Error   uint16
 	AssocId int32
 }
 type SCTPSendFailed struct {
-	Type     uint16
-	Flags    uint16
-	Length   uint32
-	Error    uint32
-	Info     SCTPSndRcvInfo
+	Type    uint16
+	Flags   uint16
+	Length  uint32
+	Error   uint32
+	Info    SCTPSndRcvInfo
 	AssocId int32
 }
 type SCTPShutdownEvent struct {
-	Type     uint16
-	Flags    uint16
-	Length   uint32
+	Type    uint16
+	Flags   uint16
+	Length  uint32
 	AssocId int32
 }
 type SCTPAdaptationEvent struct {
@@ -48,14 +48,14 @@ type SCTPAdaptationEvent struct {
 	Flags          uint16
 	Length         uint32
 	Adaptation_ind uint32
-	AssocId       int32
+	AssocId        int32
 }
 type SCTPPDApiEvent struct {
 	Type       uint16
 	Flags      uint16
 	Length     uint32
 	Indication uint32
-	AssocId   int32
+	AssocId    int32
 	Stream     uint32
 	Seq        uint32
 }
@@ -66,25 +66,25 @@ type SCTPAuthKeyEvent struct {
 	Keynumber    uint16
 	Altkeynumber uint16
 	Indication   uint32
-	AssocId     int32
+	AssocId      int32
 }
 type SCTPSenderDryEvent struct {
-	Dry_type     uint16
-	Dry_flags    uint16
-	Dry_length   uint32
+	Dry_type    uint16
+	Dry_flags   uint16
+	Dry_length  uint32
 	Dry_AssocId int32
 }
 type SCTPStreamResetEvent struct {
-	Type     uint16
-	Flags    uint16
-	Length   uint32
+	Type    uint16
+	Flags   uint16
+	Length  uint32
 	AssocId int32
 }
 type SCTPAssocResetEvent struct {
 	Type       uint16
 	Flags      uint16
 	Length     uint32
-	AssocId   int32
+	AssocId    int32
 	Local_tsn  uint32
 	Remote_tsn uint32
 }
@@ -92,7 +92,7 @@ type SCTPStreamChangeEvent struct {
 	Type     uint16
 	Flags    uint16
 	Length   uint32
-	AssocId int32
+	AssocId  int32
 	Instrms  uint16
 	Outstrms uint16
 }
@@ -100,12 +100,12 @@ type SCTPNotification [148]byte
 
 type SCTPRTOInfo struct {
 	AssocId int32
-	Initial  uint32
-	Max      uint32
-	Min      uint32
+	Initial uint32
+	Max     uint32
+	Min     uint32
 }
 type SCTPAssocParams struct {
-	AssocId                 int32
+	AssocId                  int32
 	Asocmaxrxt               uint16
 	Number_peer_destinations uint16
 	Peer_rwnd                uint32
@@ -116,7 +116,7 @@ type SCTPSetAdaptation struct {
 	Adaptation_ind uint32
 }
 type SCTPPeerAddrParams struct {
-	AssocId   int32
+	AssocId    int32
 	Pad_cgo_0  [128]byte
 	Hbinterval uint32
 	Pathmaxrxt uint16
@@ -131,31 +131,31 @@ type SCTPHmacAlgo struct {
 	Num_idents uint32
 }
 type SCTPAuthKey struct {
-	AssocId  int32
+	AssocId   int32
 	Keynumber uint16
 	Keylength uint16
 }
 type SCTPAuthKeyId struct {
-	AssocId  int32
+	AssocId   int32
 	Keynumber uint16
 	Pad_cgo_0 [2]byte
 }
 type SCTPSackInfo struct {
 	AssocId int32
-	Delay    uint32
-	Freq     uint32
+	Delay   uint32
+	Freq    uint32
 }
 type SCTPAssocValue struct {
 	Id    int32
 	Value uint32
 }
 type SCTPStreamValue struct {
-	AssocId     int32
+	AssocId      int32
 	Stream_id    uint16
 	Stream_value uint16
 }
 type SCTPPeerAddrInfo struct {
-	AssocId  int32
+	AssocId   int32
 	Pad_cgo_0 [128]byte
 	State     int32
 	Cwnd      uint32
@@ -164,7 +164,7 @@ type SCTPPeerAddrInfo struct {
 	Mtu       uint32
 }
 type SCTPStatus struct {
-	AssocId            int32
+	AssocId             int32
 	State               int32
 	Rwnd                uint32
 	Unackdata           uint16
@@ -175,14 +175,14 @@ type SCTPStatus struct {
 	Primary             SCTPPeerAddrInfo
 }
 type SCTPAuthChunks struct {
-	AssocId         int32
+	AssocId          int32
 	Number_of_chunks uint32
 }
 type SCTPAssocIds struct {
 	Number_of_ids uint32
 }
 type SCTPAssocStats struct {
-	AssocId       int32
+	AssocId        int32
 	Obs_rto_ipaddr SockAddrStorage
 	Maxrto         uint64
 	Isacks         uint64
@@ -202,21 +202,21 @@ type SCTPAssocStats struct {
 }
 
 type SCTPPeerAddrThresholds struct {
-	AssocId   int32
+	AssocId    int32
 	Address    SockAddrStorage
 	Pathmaxrxt uint16
 	Pathpfthld uint16
 	Pad_cgo_0  [4]byte
 }
 type SCTPPRStatus struct {
-	AssocId         int32
+	AssocId          int32
 	Sid              uint16
 	Policy           uint16
 	Abandoned_unsent uint64
 	Abandoned_sent   uint64
 }
 type SCTPDefaultPRInfo struct {
-	AssocId  int32
+	AssocId   int32
 	Value     uint32
 	Policy    uint16
 	Pad_cgo_0 [2]byte
@@ -279,17 +279,17 @@ type SCTPInfo struct {
 	X__reserved3          uint32
 }
 type SCTPResetStreams struct {
-	AssocId       int32
+	AssocId        int32
 	Flags          uint16
 	Number_streams uint16
 }
 type SCTPAddStreams struct {
-	AssocId int32
+	AssocId  int32
 	Instrms  uint16
 	Outstrms uint16
 }
 type SCTPEvent struct {
-	AssocId  int32
+	AssocId   int32
 	Type      uint16
 	On        uint8
 	Pad_cgo_0 [1]byte
