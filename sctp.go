@@ -276,7 +276,7 @@ func ParseSenderDryEvent(data []byte) (*Notification, error) {
 	return nil, nil
 }
 
-func ParsStreamResetEvent(data []byte) (*Notification, error) {
+func ParseStreamResetEvent(data []byte) (*Notification, error) {
 	return nil, nil
 }
 
@@ -298,18 +298,31 @@ func ParseNotification(data []byte) (*Notification, error){
 	temp := (*SCTPNotificationHeader)(unsafe.Pointer(&data[0]))
 	switch temp.Type() {
 	case SCTP_DATA_IO_EVENT:
+		return ParseDataIOEvent(data)
 	case SCTP_ASSOC_CHANGE:
+		return ParseAssocChangeEvent(data)
 	case SCTP_PEER_ADDR_CHANGE:
+		return ParsePeerAddrChangeEvent(data)
 	case SCTP_SEND_FAILED:
+		return ParseSendFailedEvent(data)
 	case SCTP_REMOTE_ERROR:
+		return ParseRemoteErrorEvent(data)
 	case SCTP_SHUTDOWN_EVENT:
+		return ParseShutdownEvent(data)
 	case SCTP_PARTIAL_DELIVERY_EVENT:
+		return ParsePartialDeliveryEvent(data)
 	case SCTP_ADAPTATION_INDICATION:
+		return ParseAdaptationIndicationEvent(data)
 	case SCTP_AUTHENTICATION_EVENT:
+		return ParseAuthenticationEvent(data)
 	case SCTP_SENDER_DRY_EVENT:
+		return ParseSenderDryEvent(data)
 	case SCTP_STREAM_RESET_EVENT:
+		return ParseStreamResetEvent(data)
 	case SCTP_ASSOC_RESET_EVENT:
+		return ParseAssocResetEvent(data)
 	case SCTP_STREAM_CHANGE_EVENT:
+		return ParseStreamChangeEvent(data)
 	}
 	return nil, fmt.Errorf("invalid notification type")
 }
