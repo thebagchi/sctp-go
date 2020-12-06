@@ -97,11 +97,7 @@ type SCTPStreamChangeEvent struct {
 	Outstrms uint16
 }
 type SCTPNotification [148]byte
-type SCTPNotificationHeader struct {
-	Type   uint16
-	Flags  uint16
-	Length uint32
-}
+
 type SCTPRTOInfo struct {
 	AssocId int32
 	Initial  uint32

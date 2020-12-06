@@ -157,6 +157,22 @@ func (conn *SCTPConn) SetWriteDeadline(t time.Time) error {
 	return syscall.ENOPROTOOPT
 }
 
+func (conn *SCTPConn) SetWriteBufferSize(bytes int) error {
+	return syscall.SetsockoptInt(int(conn.sock), syscall.SOL_SOCKET, syscall.SO_SNDBUF, bytes)
+}
+
+func (conn *SCTPConn) GetWriteBufferSize() (int, error) {
+	return syscall.GetsockoptInt(int(conn.sock), syscall.SOL_SOCKET, syscall.SO_SNDBUF)
+}
+
+func (conn *SCTPConn) SetReadBufferSize(bytes int) error {
+	return syscall.SetsockoptInt(int(conn.sock), syscall.SOL_SOCKET, syscall.SO_RCVBUF, bytes)
+}
+
+func (conn *SCTPConn) GetReadBufferSize() (int, error) {
+	return syscall.GetsockoptInt(int(conn.sock), syscall.SOL_SOCKET, syscall.SO_RCVBUF)
+}
+
 func (conn *SCTPConn) SetEventSubscribe(events *SCTPEventSubscribe) error {
 	_, _, err := syscall.Syscall6(
 		syscall.SYS_SETSOCKOPT,

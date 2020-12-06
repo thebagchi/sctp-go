@@ -138,3 +138,22 @@ type SCTPPeelOffFlagsArg struct {
 	Arg   SCTPPeelOffArg
 	Flags uint32
 }
+type Notification interface {
+	Type() uint16
+	Flag() uint16
+	Length() uint32
+}
+type SCTPNotificationHeader struct {
+	_Type   uint16
+	_Flags  uint16
+	_Length uint32
+}
+func (n *SCTPNotificationHeader) Type() uint16 {
+	return n._Type
+}
+func (n *SCTPNotificationHeader) Flag() uint16 {
+	return n._Flags
+}
+func (n *SCTPNotificationHeader) Length() uint32 {
+	return n._Length
+}

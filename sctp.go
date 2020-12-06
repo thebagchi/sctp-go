@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/gob"
+	"fmt"
 	"syscall"
 	"unsafe"
 )
@@ -235,6 +236,13 @@ func ParseSndRcvInfo(info *SCTPSndRcvInfo, data []byte) {
 	}
 }
 
-func ParseNotification(data []byte) {
-
+func ParseNotification(data []byte) (*Notification, error){
+	if len(data) < SCTPNotificationHeaderSize {
+		return nil, fmt.Errorf("data too small")
+	}
+	temp := (*SCTPNotificationHeader)(unsafe.Pointer(&data[0]))
+	switch temp.Type() {
+	
+	}
+	return nil, fmt.Errorf("invalid notification type")
 }
