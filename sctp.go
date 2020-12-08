@@ -235,60 +235,74 @@ func ParseSndRcvInfo(info *SCTPSndRcvInfo, data []byte) {
 	}
 }
 
-func ParseDataIOEvent(data []byte) (*Notification, error) {
+func ParseDataIOEvent(data []byte) (Notification, error) {
+	temp := (*SCTPNotificationHeader)(unsafe.Pointer(&data[0]))
+	return &SCTPNotificationHeader{
+		Type:   temp.Type,
+		Flags:  temp.Flags,
+		Length: temp.Length,
+	}, nil
+}
+
+func ParseAssocChangeEvent(data []byte) (Notification, error) {
+	temp := (*SCTPAssocChange)(unsafe.Pointer(&data[0]))
+	return &SCTPAssocChange{
+		Type:            temp.Type,
+		Flags:           temp.Flags,
+		Length:          temp.Length,
+		State:           temp.State,
+		Error:           temp.Error,
+		OutboundStreams: temp.OutboundStreams,
+		InboundStreams:  temp.InboundStreams,
+		AssocId:         temp.AssocId,
+	}, nil
+}
+
+func ParsePeerAddrChangeEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParseAssocChangeEvent(data []byte) (*Notification, error) {
-
+func ParseSendFailedEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParsePeerAddrChangeEvent(data []byte) (*Notification, error) {
+func ParseRemoteErrorEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParseSendFailedEvent(data []byte) (*Notification, error) {
+func ParseShutdownEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParseRemoteErrorEvent(data []byte) (*Notification, error) {
+func ParsePartialDeliveryEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParseShutdownEvent(data []byte) (*Notification, error) {
+func ParseAdaptationIndicationEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParsePartialDeliveryEvent(data []byte) (*Notification, error) {
+func ParseAuthenticationEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParseAdaptationIndicationEvent(data []byte) (*Notification, error) {
+func ParseSenderDryEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParseAuthenticationEvent(data []byte) (*Notification, error) {
+func ParseStreamResetEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParseSenderDryEvent(data []byte) (*Notification, error) {
+func ParseAssocResetEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParseStreamResetEvent(data []byte) (*Notification, error) {
+func ParseStreamChangeEvent(data []byte) (Notification, error) {
 	return nil, nil
 }
 
-func ParseAssocResetEvent(data []byte) (*Notification, error) {
-	return nil, nil
-}
-
-func ParseStreamChangeEvent(data []byte) (*Notification, error) {
-	return nil, nil
-}
-
-func ParseNotification(data []byte) (*Notification, error) {
+func ParseNotification(data []byte) (Notification, error) {
 	if len(data) < SCTPNotificationHeaderSize {
 		return nil, fmt.Errorf("invalid data len, too small")
 	}

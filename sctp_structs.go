@@ -139,15 +139,26 @@ type SCTPPeelOffFlagsArg struct {
 	Flags uint32
 }
 type Notification interface {
-	Type() uint16
-	Flag() uint16
-	Length() uint32
+	GetType() uint16
+	GetFlags() uint16
+	GetLength() uint32
 }
 type SCTPNotificationHeader struct {
 	Type   uint16
 	Flags  uint16
 	Length uint32
 }
+
+func (n *SCTPNotificationHeader) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPNotificationHeader) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPNotificationHeader) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPAssocChange struct {
 	Type            uint16
 	Flags           uint16
@@ -158,6 +169,17 @@ type SCTPAssocChange struct {
 	InboundStreams  uint16
 	AssocId         int32
 }
+
+func (n *SCTPAssocChange) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPAssocChange) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPAssocChange) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPPAddrChange struct {
 	Type    uint16
 	Flags   uint16
@@ -170,6 +192,20 @@ type SCTPPAddrChange struct {
 	// Inner structures have alignment requirement of 8 bytes.
 	// This structure has alignment requirement of 4 bytes.
 }
+
+func (n *SCTPPAddrChange) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPPAddrChange) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPPAddrChange) GetLength() uint32 {
+	return n.Length
+}
+func (n *SCTPPAddrChange) GetAddr() *SCTPAddr {
+	return nil
+}
+
 type SCTPRemoteError struct {
 	Type    uint16
 	Flags   uint16
@@ -177,6 +213,17 @@ type SCTPRemoteError struct {
 	Error   uint16
 	AssocId int32
 }
+
+func (n *SCTPRemoteError) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPRemoteError) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPRemoteError) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPSendFailed struct {
 	Type    uint16
 	Flags   uint16
@@ -185,12 +232,34 @@ type SCTPSendFailed struct {
 	Info    SCTPSndRcvInfo
 	AssocId int32
 }
+
+func (n *SCTPSendFailed) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPSendFailed) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPSendFailed) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPShutdownEvent struct {
 	Type    uint16
 	Flags   uint16
 	Length  uint32
 	AssocId int32
 }
+
+func (n *SCTPShutdownEvent) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPShutdownEvent) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPShutdownEvent) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPAdaptationEvent struct {
 	Type          uint16
 	Flags         uint16
@@ -198,6 +267,17 @@ type SCTPAdaptationEvent struct {
 	AdaptationInd uint32
 	AssocId       int32
 }
+
+func (n *SCTPAdaptationEvent) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPAdaptationEvent) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPAdaptationEvent) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPPDApiEvent struct {
 	Type       uint16
 	Flags      uint16
@@ -205,8 +285,19 @@ type SCTPPDApiEvent struct {
 	Indication uint32
 	AssocId    int32
 	Stream     uint32
-	Seq        uint32
+	Sequence   uint32
 }
+
+func (n *SCTPPDApiEvent) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPPDApiEvent) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPPDApiEvent) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPAuthKeyEvent struct {
 	Type         uint16
 	Flags        uint16
@@ -216,18 +307,51 @@ type SCTPAuthKeyEvent struct {
 	Indication   uint32
 	AssocId      int32
 }
+
+func (n *SCTPAuthKeyEvent) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPAuthKeyEvent) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPAuthKeyEvent) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPSenderDryEvent struct {
 	Type    uint16
 	Flags   uint16
 	Length  uint32
 	AssocId int32
 }
+
+func (n *SCTPSenderDryEvent) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPSenderDryEvent) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPSenderDryEvent) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPStreamResetEvent struct {
 	Type    uint16
 	Flags   uint16
 	Length  uint32
 	AssocId int32
 }
+
+func (n *SCTPStreamResetEvent) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPStreamResetEvent) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPStreamResetEvent) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPAssocResetEvent struct {
 	Type      uint16
 	Flags     uint16
@@ -236,6 +360,17 @@ type SCTPAssocResetEvent struct {
 	LocalTsn  uint32
 	RemoteTsn uint32
 }
+
+func (n *SCTPAssocResetEvent) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPAssocResetEvent) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPAssocResetEvent) GetLength() uint32 {
+	return n.Length
+}
+
 type SCTPStreamChangeEvent struct {
 	Type       uint16
 	Flags      uint16
@@ -243,4 +378,14 @@ type SCTPStreamChangeEvent struct {
 	AssocId    int32
 	InStreams  uint16
 	OutStreams uint16
+}
+
+func (n *SCTPStreamChangeEvent) GetType() uint16 {
+	return n.Type
+}
+func (n *SCTPStreamChangeEvent) GetFlags() uint16 {
+	return n.Flags
+}
+func (n *SCTPStreamChangeEvent) GetLength() uint32 {
+	return n.Length
 }
