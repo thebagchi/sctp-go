@@ -1,5 +1,7 @@
 package sctp_go
 
+import "unsafe"
+
 type IoVector struct {
 	Base *byte
 	Len  uint64
@@ -203,7 +205,7 @@ func (n *SCTPPAddrChange) GetLength() uint32 {
 	return n.Length
 }
 func (n *SCTPPAddrChange) GetAddr() *SCTPAddr {
-	return nil
+	return FromSockAddrStorage((*SockAddrStorage)(unsafe.Pointer(&n.Addr)))
 }
 
 type SCTPRemoteError struct {
