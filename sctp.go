@@ -259,47 +259,144 @@ func ParseAssocChangeEvent(data []byte) (Notification, error) {
 }
 
 func ParsePeerAddrChangeEvent(data []byte) (Notification, error) {
-	return nil, nil
+	var (
+		temp = (*SCTPPAddrChange)(unsafe.Pointer(&data[0]))
+		addr [128]byte
+	)
+	copy(addr[:], temp.Addr[:])
+	return &SCTPPAddrChange{
+		Type:    temp.Type,
+		Flags:   temp.Flags,
+		Length:  temp.Length,
+		Addr:    addr,
+		State:   temp.State,
+		Error:   temp.Error,
+		AssocId: temp.AssocId,
+	}, nil
 }
 
 func ParseSendFailedEvent(data []byte) (Notification, error) {
-	return nil, nil
+	temp := (*SCTPSendFailed)(unsafe.Pointer(&data[0]))
+	return &SCTPSendFailed{
+		Type:   temp.Type,
+		Flags:  temp.Flags,
+		Length: temp.Length,
+		Error:  temp.Error,
+		Info: SCTPSndRcvInfo{
+			Stream:     temp.Info.Stream,
+			Ssn:        temp.Info.Ssn,
+			Flags:      temp.Info.Flags,
+			Ppid:       temp.Info.Ppid,
+			Context:    temp.Info.Context,
+			TimeToLive: temp.Info.TimeToLive,
+			Tsn:        temp.Info.Tsn,
+			CumTsn:     temp.Info.CumTsn,
+			AssocId:    temp.Info.AssocId,
+		},
+		AssocId: temp.AssocId,
+	}, nil
 }
 
 func ParseRemoteErrorEvent(data []byte) (Notification, error) {
-	return nil, nil
+	temp := (*SCTPRemoteError)(unsafe.Pointer(&data[0]))
+	return &SCTPRemoteError{
+		Type:    temp.Type,
+		Flags:   temp.Flags,
+		Length:  temp.Length,
+		Error:   temp.Error,
+		AssocId: temp.AssocId,
+	}, nil
 }
 
 func ParseShutdownEvent(data []byte) (Notification, error) {
-	return nil, nil
+	temp := (*SCTPShutdownEvent)(unsafe.Pointer(&data[0]))
+	return &SCTPShutdownEvent{
+		Type:    temp.Type,
+		Flags:   temp.Flags,
+		Length:  temp.Length,
+		AssocId: temp.AssocId,
+	}, nil
 }
 
 func ParsePartialDeliveryEvent(data []byte) (Notification, error) {
-	return nil, nil
+	temp := (*SCTPPDApiEvent)(unsafe.Pointer(&data[0]))
+	return &SCTPPDApiEvent{
+		Type:       temp.Type,
+		Flags:      temp.Flags,
+		Length:     temp.Length,
+		Indication: temp.Indication,
+		AssocId:    temp.AssocId,
+		Stream:     temp.Stream,
+		Sequence:   temp.Sequence,
+	}, nil
 }
 
 func ParseAdaptationIndicationEvent(data []byte) (Notification, error) {
-	return nil, nil
+	temp := (*SCTPAdaptationEvent)(unsafe.Pointer(&data[0]))
+	return &SCTPAdaptationEvent{
+		Type:          temp.Type,
+		Flags:         temp.Flags,
+		Length:        temp.Length,
+		AdaptationInd: temp.AdaptationInd,
+		AssocId:       temp.AssocId,
+	}, nil
 }
 
 func ParseAuthenticationEvent(data []byte) (Notification, error) {
-	return nil, nil
+	temp := (*SCTPAuthKeyEvent)(unsafe.Pointer(&data[0]))
+	return &SCTPAuthKeyEvent{
+		Type:         temp.Type,
+		Flags:        temp.Flags,
+		Length:       temp.Length,
+		KeyNumber:    temp.KeyNumber,
+		AltKeyNumber: temp.AltKeyNumber,
+		Indication:   temp.Indication,
+		AssocId:      temp.AssocId,
+	}, nil
 }
 
 func ParseSenderDryEvent(data []byte) (Notification, error) {
-	return nil, nil
+	temp := (*SCTPSenderDryEvent)(unsafe.Pointer(&data[0]))
+	return &SCTPSenderDryEvent{
+		Type:    temp.Type,
+		Flags:   temp.Flags,
+		Length:  temp.Length,
+		AssocId: temp.AssocId,
+	}, nil
 }
 
 func ParseStreamResetEvent(data []byte) (Notification, error) {
-	return nil, nil
+	temp := (*SCTPStreamResetEvent)(unsafe.Pointer(&data[0]))
+	return &SCTPStreamResetEvent{
+		Type:    temp.Type,
+		Flags:   temp.Flags,
+		Length:  temp.Length,
+		AssocId: temp.AssocId,
+	}, nil
 }
 
 func ParseAssocResetEvent(data []byte) (Notification, error) {
-	return nil, nil
+	temp := (*SCTPAssocResetEvent)(unsafe.Pointer(&data[0]))
+	return &SCTPAssocResetEvent{
+		Type:      temp.Type,
+		Flags:     temp.Flags,
+		Length:    temp.Length,
+		AssocId:   temp.AssocId,
+		LocalTsn:  temp.LocalTsn,
+		RemoteTsn: temp.RemoteTsn,
+	}, nil
 }
 
 func ParseStreamChangeEvent(data []byte) (Notification, error) {
-	return nil, nil
+	temp := (*SCTPStreamChangeEvent)(unsafe.Pointer(&data[0]))
+	return &SCTPStreamChangeEvent{
+		Type:       temp.Type,
+		Flags:      temp.Flags,
+		Length:     temp.Length,
+		AssocId:    temp.AssocId,
+		InStreams:  temp.InStreams,
+		OutStreams: temp.OutStreams,
+	}, nil
 }
 
 func ParseNotification(data []byte) (Notification, error) {
