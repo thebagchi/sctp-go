@@ -240,6 +240,7 @@ func ParseDataIOEvent(data []byte) (*Notification, error) {
 }
 
 func ParseAssocChangeEvent(data []byte) (*Notification, error) {
+
 	return nil, nil
 }
 
@@ -295,7 +296,7 @@ func ParseNotification(data []byte) (*Notification, error) {
 		return nil, fmt.Errorf("invalid data len, too large")
 	}
 	temp := (*SCTPNotificationHeader)(unsafe.Pointer(&data[0]))
-	switch temp.Type() {
+	switch temp.Type {
 	case SCTP_DATA_IO_EVENT:
 		return ParseDataIOEvent(data)
 	case SCTP_ASSOC_CHANGE:

@@ -144,17 +144,103 @@ type Notification interface {
 	Length() uint32
 }
 type SCTPNotificationHeader struct {
-	_Type   uint16
-	_Flags  uint16
-	_Length uint32
+	Type   uint16
+	Flags  uint16
+	Length uint32
 }
-
-func (n *SCTPNotificationHeader) Type() uint16 {
-	return n._Type
+type SCTPAssocChange struct {
+	Type            uint16
+	Flags           uint16
+	Length          uint32
+	State           uint16
+	Error           uint16
+	OutboundStreams uint16
+	InboundStreams  uint16
+	AssocId         int32
 }
-func (n *SCTPNotificationHeader) Flag() uint16 {
-	return n._Flags
+type SCTPPAddrChange struct {
+	Type    uint16
+	Flags   uint16
+	Length  uint32
+	Addr    [128]byte
+	State   int32
+	Error   int32
+	AssocId int32
+	// Cannot use SockAddrStorage as type for Addr.
+	// Inner structures have alignment requirement of 8 bytes.
+	// This structure has alignment requirement of 4 bytes.
 }
-func (n *SCTPNotificationHeader) Length() uint32 {
-	return n._Length
+type SCTPRemoteError struct {
+	Type    uint16
+	Flags   uint16
+	Length  uint32
+	Error   uint16
+	AssocId int32
+}
+type SCTPSendFailed struct {
+	Type    uint16
+	Flags   uint16
+	Length  uint32
+	Error   uint32
+	Info    SCTPSndRcvInfo
+	AssocId int32
+}
+type SCTPShutdownEvent struct {
+	Type    uint16
+	Flags   uint16
+	Length  uint32
+	AssocId int32
+}
+type SCTPAdaptationEvent struct {
+	Type          uint16
+	Flags         uint16
+	Length        uint32
+	AdaptationInd uint32
+	AssocId       int32
+}
+type SCTPPDApiEvent struct {
+	Type       uint16
+	Flags      uint16
+	Length     uint32
+	Indication uint32
+	AssocId    int32
+	Stream     uint32
+	Seq        uint32
+}
+type SCTPAuthKeyEvent struct {
+	Type         uint16
+	Flags        uint16
+	Length       uint32
+	KeyNumber    uint16
+	AltKeyNumber uint16
+	Indication   uint32
+	AssocId      int32
+}
+type SCTPSenderDryEvent struct {
+	Type    uint16
+	Flags   uint16
+	Length  uint32
+	AssocId int32
+}
+type SCTPStreamResetEvent struct {
+	Type    uint16
+	Flags   uint16
+	Length  uint32
+	AssocId int32
+}
+type SCTPAssocResetEvent struct {
+	Type      uint16
+	Flags     uint16
+	Length    uint32
+	AssocId   int32
+	LocalTsn  uint32
+	RemoteTsn uint32
+}
+type SCTPStreamChangeEvent struct {
+	Type       uint16
+	Flags      uint16
+	Length     uint32
+	AssocId    int32
+	InStreams  uint16
+	OutStreams uint16
 }

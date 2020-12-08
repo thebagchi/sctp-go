@@ -170,6 +170,136 @@ func TestSizes(t *testing.T) {
 		}
 	}
 	{
+		temp := &SCTPAssocChange{}
+		if unsafe.Sizeof(*temp) != SCTPAssocChangeSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPAssocChangeSize)
+			t.Error("SCTPAssocChange sizes don't match")
+		} else {
+			fmt.Println("SCTPAssocChangeSize: ", SCTPAssocChangeSize)
+		}
+	}
+	{
+		temp := &SCTPPAddrChange{}
+		if unsafe.Sizeof(*temp) != SCTPPAddrChangeSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPPAddrChangeSize)
+			t.Error("SCTPPAddrChange sizes don't match")
+		} else {
+			fmt.Println("SCTPPAddrChangeSize: ", SCTPPAddrChangeSize)
+		}
+	}
+	{
+		temp := &SCTPRemoteError{}
+		if unsafe.Sizeof(*temp) != SCTPRemoteErrorSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPRemoteErrorSize)
+			t.Error("SCTPRemoteError sizes don't match")
+		} else {
+			fmt.Println("SCTPRemoteErrorSize: ", SCTPRemoteErrorSize)
+		}
+	}
+	{
+		temp := &SCTPSendFailed{}
+		if unsafe.Sizeof(*temp) != SCTPSendFailedSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPSendFailedSize)
+			t.Error("SCTPSendFailed sizes don't match")
+		} else {
+			fmt.Println("SCTPSendFailedSize: ", SCTPSendFailedSize)
+		}
+	}
+	{
+		temp := &SCTPShutdownEvent{}
+		if unsafe.Sizeof(*temp) != SCTPShutdownEventSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPShutdownEventSize)
+			t.Error("SCTPShutdownEvent sizes don't match")
+		} else {
+			fmt.Println("SCTPShutdownEventSize: ", SCTPShutdownEventSize)
+		}
+	}
+	{
+		temp := &SCTPAdaptationEvent{}
+		if unsafe.Sizeof(*temp) != SCTPAdaptationEventSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPAdaptationEventSize)
+			t.Error("SCTPAdaptationEvent sizes don't match")
+		} else {
+			fmt.Println("SCTPAdaptationEventSize: ", SCTPAdaptationEventSize)
+		}
+	}
+	{
+		temp := &SCTPPDApiEvent{}
+		if unsafe.Sizeof(*temp) != SCTPPDApiEventSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPPDApiEventSize)
+			t.Error("SCTPPDApiEvent sizes don't match")
+		} else {
+			fmt.Println("SCTPPDApiEventSize: ", SCTPPDApiEventSize)
+		}
+	}
+	{
+		temp := &SCTPAuthKeyEvent{}
+		if unsafe.Sizeof(*temp) != SCTPAuthKeyEventSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPAuthKeyEventSize)
+			t.Error("SCTPAuthKeyEvent sizes don't match")
+		} else {
+			fmt.Println("SCTPAuthKeyEventSize: ", SCTPAuthKeyEventSize)
+		}
+	}
+	{
+		temp := &SCTPSenderDryEvent{}
+		if unsafe.Sizeof(*temp) != SCTPSenderDryEventSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPSenderDryEventSize)
+			t.Error("SCTPSenderDryEvent sizes don't match")
+		} else {
+			fmt.Println("SCTPSenderDryEventSize: ", SCTPSenderDryEventSize)
+		}
+	}
+	{
+		temp := &SCTPStreamResetEvent{}
+		if unsafe.Sizeof(*temp) != SCTPStreamResetEventSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPStreamResetEventSize)
+			t.Error("SCTPStreamResetEvent sizes don't match")
+		} else {
+			fmt.Println("SCTPStreamResetEventSize: ", SCTPStreamResetEventSize)
+		}
+	}
+	{
+		temp := &SCTPAssocResetEvent{}
+		if unsafe.Sizeof(*temp) != SCTPAssocResetEventSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPAssocResetEventSize)
+			t.Error("SCTPAssocResetEvent sizes don't match")
+		} else {
+			fmt.Println("SCTPAssocResetEventSize: ", SCTPAssocResetEventSize)
+		}
+	}
+	{
+		temp := &SCTPAssocResetEvent{}
+		if unsafe.Sizeof(*temp) != SCTPAssocResetEventSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPAssocResetEventSize)
+			t.Error("SCTPAssocResetEvent sizes don't match")
+		} else {
+			fmt.Println("SCTPAssocResetEventSize: ", SCTPAssocResetEventSize)
+		}
+	}
+	{
+		temp := &SCTPStreamChangeEvent{}
+		if unsafe.Sizeof(*temp) != SCTPStreamChangeEventSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPStreamChangeEventSize)
+			t.Error("SCTPStreamChangeEvent sizes don't match")
+		} else {
+			fmt.Println("SCTPStreamChangeEventSize: ", SCTPStreamChangeEventSize)
+		}
+	}
+	{
 		fmt.Println("CMSG_SPACE(sizeof(SCTPSndRcvInfo)): ", syscall.CmsgSpace(SCTPSndRcvInfoSize))
 	}
 }
