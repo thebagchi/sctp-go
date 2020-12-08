@@ -3,8 +3,6 @@
 
 package sctp_go
 
-type SCTPNotification [148]byte
-
 type SCTPRTOInfo struct {
 	AssocId int32
 	Initial uint32

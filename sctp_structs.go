@@ -140,6 +140,7 @@ type SCTPPeelOffFlagsArg struct {
 	Arg   SCTPPeelOffArg
 	Flags uint32
 }
+type SCTPNotification [148]byte
 type Notification interface {
 	GetType() uint16
 	GetFlags() uint16
