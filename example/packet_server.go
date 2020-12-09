@@ -74,7 +74,11 @@ func main() {
 					if nil != err {
 						fmt.Println("Error: ", err)
 					} else {
-						fmt.Println(fmt.Sprintf("Notification %d", notification.GetType()))
+						fmt.Println(fmt.Sprintf(
+							"Notification %s %d",
+							sctp.NotificationName(notification.GetType()),
+							notification.GetType(),
+						))
 					}
 				} else {
 					fmt.Println(fmt.Sprintf("Rcvd %d bytes", len))

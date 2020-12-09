@@ -399,6 +399,38 @@ func ParseStreamChangeEvent(data []byte) (Notification, error) {
 	}, nil
 }
 
+func NotificationName(notification uint16) string {
+	switch notification {
+	case SCTP_DATA_IO_EVENT:
+		return "SCTP_DATA_IO_EVENT"
+	case SCTP_ASSOC_CHANGE:
+		return "SCTP_ASSOC_CHANGE"
+	case SCTP_PEER_ADDR_CHANGE:
+		return "SCTP_PEER_ADDR_CHANGE"
+	case SCTP_SEND_FAILED:
+		return "SCTP_SEND_FAILED"
+	case SCTP_REMOTE_ERROR:
+		return "SCTP_REMOTE_ERROR"
+	case SCTP_SHUTDOWN_EVENT:
+		return "SCTP_SHUTDOWN_EVENT"
+	case SCTP_PARTIAL_DELIVERY_EVENT:
+		return "SCTP_PARTIAL_DELIVERY_EVENT"
+	case SCTP_ADAPTATION_INDICATION:
+		return "SCTP_ADAPTATION_INDICATION"
+	case SCTP_AUTHENTICATION_EVENT:
+		return "SCTP_AUTHENTICATION_EVENT"
+	case SCTP_SENDER_DRY_EVENT:
+		return "SCTP_SENDER_DRY_EVENT"
+	case SCTP_STREAM_RESET_EVENT:
+		return "SCTP_STREAM_RESET_EVENT"
+	case SCTP_ASSOC_RESET_EVENT:
+		return "SCTP_ASSOC_RESET_EVENT"
+	case SCTP_STREAM_CHANGE_EVENT:
+		return "SCTP_STREAM_CHANGE_EVENT"
+	}
+	return ""
+}
+
 func ParseNotification(data []byte) (Notification, error) {
 	if len(data) < SCTPNotificationHeaderSize {
 		return nil, fmt.Errorf("invalid data len, too small")
