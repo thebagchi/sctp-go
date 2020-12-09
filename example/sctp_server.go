@@ -5,6 +5,7 @@ import (
 	"fmt"
 	sctp "github.com/thebagchi/sctp-go"
 	"os"
+	"syscall"
 )
 
 func HandleClient(conn *sctp.SCTPConn) {
@@ -44,6 +45,7 @@ func main() {
 
 	server, err := sctp.ListenSCTP(
 		"sctp4",
+		syscall.SOCK_STREAM,
 		addr,
 		&sctp.SCTPInitMsg{
 			NumOutStreams:  0xffff,

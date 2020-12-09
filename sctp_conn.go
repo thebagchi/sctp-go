@@ -47,7 +47,7 @@ func (conn *SCTPConn) Read(b []byte) (n int, err error) {
 	)
 	for {
 		n, err = conn.RecvMsg(b, info, &flags)
-		if flags == SCTP_MSG_NOTIFICATION {
+		if flags&SCTP_MSG_NOTIFICATION <= 0 {
 			return n, err
 		}
 	}
@@ -183,20 +183,29 @@ func (conn *SCTPConn) SetEventSubscribe(events *SCTPEventSubscribe) error {
 		unsafe.Sizeof(*events),
 		0,
 	)
-	return err
+	if 0 != err {
+		return err
+	}
+	return nil
 }
 
 func (conn *SCTPConn) GetEventSubscribe() (*SCTPEventSubscribe, error) {
-	events := &SCTPEventSubscribe{}
+	var (
+		events = &SCTPEventSubscribe{}
+		length = unsafe.Sizeof(*events)
+	)
 	_, _, err := syscall.Syscall6(
 		syscall.SYS_GETSOCKOPT,
 		uintptr(conn.sock),
 		SOL_SCTP,
 		SCTP_EVENTS,
-		uintptr(unsafe.Pointer(&events)),
-		unsafe.Sizeof(*events),
+		uintptr(unsafe.Pointer(events)),
+		uintptr(unsafe.Pointer(&length)),
 		0,
 	)
+	if 0 != err {
+		return nil, err
+	}
 	return events, err
 }
 

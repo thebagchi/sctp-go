@@ -49,6 +49,69 @@ func (listener *SCTPListener) Close() error {
 	return syscall.Close(listener.sock)
 }
 
+func (listener *SCTPListener) SetEventSubscribe(events *SCTPEventSubscribe) error {
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_SETSOCKOPT,
+		uintptr(listener.sock),
+		SOL_SCTP,
+		SCTP_EVENTS,
+		uintptr(unsafe.Pointer(&events)),
+		unsafe.Sizeof(*events),
+		0,
+	)
+	if 0 != err {
+		return err
+	}
+	return nil
+}
+
+func (listener *SCTPListener) GetEventSubscribe() (*SCTPEventSubscribe, error) {
+	var (
+		events = &SCTPEventSubscribe{}
+		length = unsafe.Sizeof(*events)
+	)
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(listener.sock),
+		SOL_SCTP,
+		SCTP_EVENTS,
+		uintptr(unsafe.Pointer(events)),
+		uintptr(unsafe.Pointer(&length)),
+		0,
+	)
+	if 0 != err {
+		return nil, err
+	}
+	return events, nil
+}
+
+func (listener *SCTPListener) RecvMsg(b []byte, info *SCTPSndRcvInfo, flags *int) (n int, err error) {
+	oob := make([]byte, syscall.CmsgSpace(SCTPSndRcvInfoSize))
+	n, noob, flag, _, err := syscall.Recvmsg(listener.sock, b, oob, 0)
+	if nil != err {
+		return n, err
+	}
+	*flags = flag
+	if noob > 0 {
+		ParseSndRcvInfo(info, oob[:noob])
+	}
+	return n, nil
+}
+
+func (listener *SCTPListener) SendMsg(b []byte, info *SCTPSndRcvInfo) (int, error) {
+	var buffer []byte
+	if nil != info {
+		hdr := &syscall.Cmsghdr{
+			Level: syscall.IPPROTO_SCTP,
+			Type:  SCTP_SNDRCV,
+			Len:   uint64(syscall.CmsgSpace(SCTPSndRcvInfoSize)),
+		}
+		buffer = append(buffer, Pack(hdr)...)
+		buffer = append(buffer, Pack(info)...)
+	}
+	return syscall.SendmsgN(listener.sock, b, buffer, nil, 0)
+}
+
 func (listener *SCTPListener) SetInitMsg(init *SCTPInitMsg) error {
 	_, _, err := syscall.Syscall6(
 		syscall.SYS_SETSOCKOPT,
@@ -65,7 +128,7 @@ func (listener *SCTPListener) SetInitMsg(init *SCTPInitMsg) error {
 	return nil
 }
 
-func ListenSCTP(network string, local *SCTPAddr, init *SCTPInitMsg) (*SCTPListener, error) {
+func ListenSCTP(network string, sockettype int, local *SCTPAddr, init *SCTPInitMsg) (*SCTPListener, error) {
 	switch network {
 	case "sctp", "sctp4", "sctp6":
 	default:
@@ -84,12 +147,16 @@ func ListenSCTP(network string, local *SCTPAddr, init *SCTPInitMsg) (*SCTPListen
 	for {
 		family := DetectAddrFamily(network)
 		//syscall.SOCK_SEQPACKET vs syscall.SOCK_STREAM
-		sock, err = SCTPSocket(family, syscall.SOCK_STREAM)
+		sock, err = SCTPSocket(family, sockettype)
 		if nil != err {
 			break
 		}
 		err = syscall.SetsockoptInt(sock, syscall.IPPROTO_IPV6, syscall.IPV6_V6ONLY, 0)
 		err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1)
+		if nil != err {
+			break
+		}
+		err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_REUSEADDR, 1)
 		if nil != err {
 			break
 		}
