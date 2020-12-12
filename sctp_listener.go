@@ -36,6 +36,22 @@ func (listener *SCTPListener) Connect(remote *SCTPAddr) (int, error) {
 	return SCTPConnect(listener.sock, remote)
 }
 
+func (listener *SCTPListener) Disconnect(assoc int) error {
+	conn, err := SCTPPeelOff(listener.sock, assoc)
+	if nil != err {
+		return err
+	}
+	return conn.Close()
+}
+
+func (listener *SCTPListener) PeelOff(assoc int) (*SCTPConn, error) {
+	return SCTPPeelOff(listener.sock, assoc)
+}
+
+func (listener *SCTPListener) PeelOffFlags(assoc, flag int) (*SCTPConn, error) {
+	return SCTPPeelOffFlag(listener.sock, assoc, flag)
+}
+
 func (listener *SCTPListener) AcceptSCTP() (*SCTPConn, error) {
 	sock, _, err := syscall.Accept4(listener.sock, 0)
 	if nil != err {
