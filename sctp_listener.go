@@ -32,6 +32,10 @@ func (listener *SCTPListener) Addr() net.Addr {
 	return nil
 }
 
+func (listener *SCTPListener) Connect(remote *SCTPAddr) (int, error) {
+	return SCTPConnect(listener.sock, remote)
+}
+
 func (listener *SCTPListener) AcceptSCTP() (*SCTPConn, error) {
 	sock, _, err := syscall.Accept4(listener.sock, 0)
 	if nil != err {
