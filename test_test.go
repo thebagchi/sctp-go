@@ -300,6 +300,192 @@ func TestSizes(t *testing.T) {
 		}
 	}
 	{
+		temp := &SCTPRTOInfo{}
+		if unsafe.Sizeof(*temp) != SCTPRTOInfoSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPRTOInfoSize)
+			t.Error("SCTPRTOInfo sizes don't match")
+		} else {
+			fmt.Println("SCTPRTOInfoSize: ", SCTPRTOInfoSize)
+		}
+	}
+	{
+		temp := &SCTPResetStreams{}
+		if unsafe.Sizeof(*temp) != SCTPResetStreamsSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPResetStreamsSize)
+			t.Error("SCTPResetStreams sizes don't match")
+		} else {
+			fmt.Println("SCTPResetStreamsSize: ", SCTPResetStreamsSize)
+		}
+	}
+	{
+		temp := &SCTPAddStreams{}
+		if unsafe.Sizeof(*temp) != SCTPAddStreamsSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPAddStreamsSize)
+			t.Error("SCTPAddStreams sizes don't match")
+		} else {
+			fmt.Println("SCTPAddStreamsSize: ", SCTPAddStreamsSize)
+		}
+	}
+	{
+		temp := &SCTPAssocParams{}
+		if unsafe.Sizeof(*temp) != SCTPAssocParamsSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPAssocParamsSize)
+			t.Error("SCTPAssocParams sizes don't match")
+		} else {
+			fmt.Println("SCTPAssocParamsSize: ", SCTPAssocParamsSize)
+		}
+	}
+	{
+		temp := &SCTPSetAdaptation{}
+		if unsafe.Sizeof(*temp) != SCTPSetAdaptationSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPSetAdaptationSize)
+			t.Error("SCTPSetAdaptation sizes don't match")
+		} else {
+			fmt.Println("SCTPSetAdaptationSize: ", SCTPSetAdaptationSize)
+		}
+	}
+	{
+		temp := &SCTPPeerAddrParams{}
+		if unsafe.Sizeof(*temp) != SCTPPeerAddrParamsSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPPeerAddrParamsSize)
+			{
+				if len(Pack(temp)) != SCTPPeerAddrParamsSize {
+					t.Error("SCTPPeerAddrParams sizes don't match")
+				} else {
+					fmt.Println("SCTPPeerAddrParams sizes don't match")
+				}
+			}
+		} else {
+			fmt.Println("SCTPPeerAddrParamsSize: ", SCTPPeerAddrParamsSize)
+		}
+	}
+	{
+		temp := &SCTPPeerAddrInfo{}
+		if unsafe.Sizeof(*temp) != SCTPPeerAddrInfoSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPPeerAddrInfoSize)
+			t.Error("SCTPPeerAddrInfo sizes don't match")
+		} else {
+			fmt.Println("SCTPPeerAddrInfoSize: ", SCTPPeerAddrInfoSize)
+		}
+	}
+	{
+		temp := &SCTPAssocValue{}
+		if unsafe.Sizeof(*temp) != SCTPAssocValueSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPAssocValueSize)
+			t.Error("SCTPAssocValue sizes don't match")
+		} else {
+			fmt.Println("SCTPAssocValueSize: ", SCTPAssocValueSize)
+		}
+	}
+	{
+		temp := &SCTPSackInfo{}
+		if unsafe.Sizeof(*temp) != SCTPSackInfoSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPSackInfoSize)
+			t.Error("SCTPSackInfo sizes don't match")
+		} else {
+			fmt.Println("SCTPSackInfoSize: ", SCTPSackInfoSize)
+		}
+	}
+	{
+		temp := &SCTPStreamValue{}
+		if unsafe.Sizeof(*temp) != SCTPStreamValueSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPStreamValueSize)
+			t.Error("SCTPStreamValue sizes don't match")
+		} else {
+			fmt.Println("SCTPStreamValueSize: ", SCTPStreamValueSize)
+		}
+	}
+	{
+		temp := &SCTPStatus{}
+		if unsafe.Sizeof(*temp) != SCTPStatusSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPStatusSize)
+			t.Error("SCTPStatus sizes don't match")
+		} else {
+			fmt.Println("SCTPStatusSize: ", SCTPStatusSize)
+		}
+	}
+	{
+		temp := &SCTPAuthKeyId{}
+		if unsafe.Sizeof(*temp) != SCTPAuthKeyIdSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPAuthKeyIdSize)
+			t.Error("SCTPAuthKeyId sizes don't match")
+		} else {
+			fmt.Println("SCTPAuthKeyIdSize: ", SCTPAuthKeyIdSize)
+		}
+	}
+	{
+		temp := &SCTPAssocStats{}
+		if unsafe.Sizeof(*temp) != SCTPAssocStatsSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPAssocStatsSize)
+			t.Error("SCTPAssocStats sizes don't match")
+		} else {
+			fmt.Println("SCTPAssocStatsSize: ", SCTPAssocStatsSize)
+		}
+	}
+	{
+		temp := &SCTPPeerAddrThresholds{}
+		if unsafe.Sizeof(*temp) != SCTPPeerAddrThresholdsSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPPeerAddrThresholdsSize)
+			t.Error("SCTPPeerAddrThresholds sizes don't match")
+		} else {
+			fmt.Println("SCTPPeerAddrThresholdsSize: ", SCTPPeerAddrThresholdsSize)
+		}
+	}
+	{
+		temp := &SCTPPRStatus{}
+		if unsafe.Sizeof(*temp) != SCTPPRStatusSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPPRStatusSize)
+			t.Error("SCTPPRStatus sizes don't match")
+		} else {
+			fmt.Println("SCTPPRStatusSize: ", SCTPPRStatusSize)
+		}
+	}
+	{
+		temp := &SCTPDefaultPRInfo{}
+		if unsafe.Sizeof(*temp) != SCTPDefaultPRInfoSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPDefaultPRInfoSize)
+			t.Error("SCTPDefaultPRInfo sizes don't match")
+		} else {
+			fmt.Println("SCTPDefaultPRInfoSize: ", SCTPDefaultPRInfoSize)
+		}
+	}
+	{
+		temp := &SCTPEvent{}
+		if unsafe.Sizeof(*temp) != SCTPEventSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPEventSize)
+			t.Error("SCTPEvent sizes don't match")
+		} else {
+			fmt.Println("SCTPEventSize: ", SCTPEventSize)
+		}
+	}
+	{
+		temp := &SCTPInfo{}
+		if unsafe.Sizeof(*temp) != SCTPInfoSize {
+			fmt.Println(unsafe.Sizeof(*temp))
+			fmt.Println(SCTPInfoSize)
+			t.Error("SCTPInfo sizes don't match")
+		} else {
+			fmt.Println("SCTPInfoSize: ", SCTPInfoSize)
+		}
+	}
+	{
 		fmt.Println("CMSG_SPACE(sizeof(SCTPSndRcvInfo)): ", syscall.CmsgSpace(SCTPSndRcvInfoSize))
 	}
 }

@@ -36,12 +36,22 @@ func (listener *SCTPListener) Connect(remote *SCTPAddr) (int, error) {
 	return SCTPConnect(listener.sock, remote)
 }
 
-func (listener *SCTPListener) Disconnect(assoc int) error {
-	conn, err := SCTPPeelOff(listener.sock, assoc)
-	if nil != err {
-		return err
+func (listener *SCTPListener) Abort(assoc int) error {
+	msg := &SCTPSndRcvInfo{
+		Flags:   SCTP_ABORT,
+		AssocId: int32(assoc),
 	}
-	return conn.Close()
+	_, err := listener.SendMsg(nil, msg)
+	return err
+}
+
+func (listener *SCTPListener) Disconnect(assoc int) error {
+	msg := &SCTPSndRcvInfo{
+		Flags:   SCTP_EOF,
+		AssocId: int32(assoc),
+	}
+	_, err := listener.SendMsg(nil, msg)
+	return err
 }
 
 func (listener *SCTPListener) PeelOff(assoc int) (*SCTPConn, error) {

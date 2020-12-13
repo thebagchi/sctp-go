@@ -84,6 +84,27 @@ func (conn *SCTPConn) SendMsg(b []byte, info *SCTPSndRcvInfo) (int, error) {
 	return syscall.SendmsgN(int(conn.sock), b, buffer, nil, 0)
 }
 
+func (conn *SCTPConn) Abort() error {
+	sock := atomic.SwapInt64(&conn.sock, -1)
+	if sock > 0 {
+		linger := syscall.Linger{
+			Onoff:  1,
+			Linger: 0,
+		}
+		_, _, _ = syscall.Syscall6(
+			syscall.SYS_SETSOCKOPT,
+			uintptr(conn.sock),
+			syscall.SOL_SOCKET,
+			syscall.SO_LINGER,
+			uintptr(unsafe.Pointer(&linger)),
+			unsafe.Sizeof(linger),
+			0,
+		)
+		return syscall.Close(int(conn.sock))
+	}
+	return syscall.EBADFD
+}
+
 func (conn *SCTPConn) Close() error {
 	if !conn.ok() {
 		return syscall.EINVAL
@@ -145,15 +166,15 @@ func (conn *SCTPConn) RemoteAddr() net.Addr {
 	return nil
 }
 
-func (conn *SCTPConn) SetDeadline(t time.Time) error {
+func (conn *SCTPConn) SetDeadline(_ time.Time) error {
 	return syscall.ENOPROTOOPT
 }
 
-func (conn *SCTPConn) SetReadDeadline(t time.Time) error {
+func (conn *SCTPConn) SetReadDeadline(_ time.Time) error {
 	return syscall.ENOPROTOOPT
 }
 
-func (conn *SCTPConn) SetWriteDeadline(t time.Time) error {
+func (conn *SCTPConn) SetWriteDeadline(_ time.Time) error {
 	return syscall.ENOPROTOOPT
 }
 
