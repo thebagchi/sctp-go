@@ -78,8 +78,7 @@ func (conn *SCTPConn) SendMsg(b []byte, info *SCTPSndRcvInfo) (int, error) {
 			Type:  SCTP_SNDRCV,
 			Len:   uint64(syscall.CmsgSpace(SCTPSndRcvInfoSize)),
 		}
-		buffer = append(buffer, Pack(hdr)...)
-		buffer = append(buffer, Pack(info)...)
+		buffer = append(Pack(hdr), Pack(info)...)
 	}
 	return syscall.SendmsgN(int(conn.sock), b, buffer, nil, 0)
 }

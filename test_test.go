@@ -496,9 +496,15 @@ func TestPacking(t *testing.T) {
 		hdr := &syscall.Cmsghdr{
 			Level: syscall.IPPROTO_SCTP,
 			Type:  SCTP_SNDRCV,
-			Len:   uint64(syscall.CmsgSpace(SCTPSndRcvInfoSize)),
 		}
-		buffer = append(buffer, Pack(unsafe.Pointer(hdr))...)
+		hdr.SetLen(syscall.CmsgSpace(SCTPSndRcvInfoSize))
+		info := &SCTPSndRcvInfo{
+			AssocId: 100,
+		}
+		buffer = append(buffer, Pack(hdr)...)
+		buffer = append(buffer, Pack(info)...)
+		fmt.Println(len(Pack(hdr)))
+		fmt.Println(len(Pack(info)))
 	}
 	fmt.Printf("%s", hex.Dump(buffer))
 	fmt.Println(len(buffer))

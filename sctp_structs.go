@@ -64,6 +64,7 @@ type SCTPSndRcvInfo struct {
 	Stream     uint16
 	Ssn        uint16
 	Flags      uint16
+	_          uint16
 	Ppid       uint32
 	Context    uint32
 	TimeToLive uint32

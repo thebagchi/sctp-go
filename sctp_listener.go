@@ -32,6 +32,28 @@ func (listener *SCTPListener) Addr() net.Addr {
 	return nil
 }
 
+func (listener *SCTPListener) RemoteAddr(assoc int) net.Addr {
+	var (
+		data   = make([]byte, 4096)
+		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data))
+		length = len(data)
+	)
+	addrs.AssocId = int32(assoc)
+	_, _, err := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(listener.sock),
+		syscall.IPPROTO_SCTP,
+		SCTP_GET_PEER_ADDRS,
+		uintptr(unsafe.Pointer(addrs)),
+		uintptr(unsafe.Pointer(&length)),
+		0,
+	)
+	if 0 == err {
+		return FromSCTPGetAddrs(addrs)
+	}
+	return nil
+}
+
 func (listener *SCTPListener) Connect(remote *SCTPAddr) (int, error) {
 	return SCTPConnect(listener.sock, remote)
 }
@@ -47,8 +69,10 @@ func (listener *SCTPListener) Abort(assoc int) error {
 
 func (listener *SCTPListener) Disconnect(assoc int) error {
 	msg := &SCTPSndRcvInfo{
-		Flags:   SCTP_EOF,
-		AssocId: int32(assoc),
+		Stream:     0,
+		Ppid:       0,
+		Flags:      SCTP_EOF,
+		AssocId:    int32(assoc),
 	}
 	_, err := listener.SendMsg(nil, msg)
 	return err
@@ -136,8 +160,7 @@ func (listener *SCTPListener) SendMsg(b []byte, info *SCTPSndRcvInfo) (int, erro
 			Type:  SCTP_SNDRCV,
 			Len:   uint64(syscall.CmsgSpace(SCTPSndRcvInfoSize)),
 		}
-		buffer = append(buffer, Pack(hdr)...)
-		buffer = append(buffer, Pack(info)...)
+		buffer = append(Pack(hdr), Pack(info)...)
 	}
 	return syscall.SendmsgN(listener.sock, b, buffer, nil, 0)
 }
