@@ -8,7 +8,7 @@
 #### Stream Server
 $ go run example/sctp_server.go
 
-#### SEQPACKET Server
+#### Sequential Packet Server
 $ go run example/packet_server.go
 
 ### Running Client
@@ -16,7 +16,7 @@ $ go run example/packet_server.go
 #### Stream Client 
 $ go run example/sctp_client.go 
 
-#### SEQPACKET Client
+#### Sequential Packet Client
 $ go run example/packet_client.go
 
 #### Getting
