@@ -162,7 +162,8 @@ func (listener *SCTPListener) SendMsg(b []byte, info *SCTPSndRcvInfo) (int, erro
 		}
 		buffer = append(Pack(hdr), Pack(info)...)
 	}
-	return syscall.SendmsgN(listener.sock, b, buffer, nil, 0)
+	// return syscall.SendmsgN(listener.sock, b, buffer, nil, 0)
+	return SCTPSendMsg(listener.sock, b, buffer, 0)
 }
 
 func (listener *SCTPListener) SetInitMsg(init *SCTPInitMsg) error {

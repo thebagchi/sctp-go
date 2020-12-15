@@ -80,7 +80,8 @@ func (conn *SCTPConn) SendMsg(b []byte, info *SCTPSndRcvInfo) (int, error) {
 		}
 		buffer = append(Pack(hdr), Pack(info)...)
 	}
-	return syscall.SendmsgN(int(conn.sock), b, buffer, nil, 0)
+	// return syscall.SendmsgN(int(conn.sock), b, buffer, nil, 0)
+	return SCTPSendMsg(int(conn.sock), b, buffer, 0)
 }
 
 func (conn *SCTPConn) Abort() error {

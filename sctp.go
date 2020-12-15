@@ -469,3 +469,36 @@ func ParseNotification(data []byte) (Notification, error) {
 	}
 	return nil, fmt.Errorf("invalid notification type")
 }
+
+func SCTPSendMsg(sock int, buffer, control []byte, flags int) (int, error) {
+	var (
+		ptr unsafe.Pointer
+		msg syscall.Msghdr
+		iov syscall.Iovec
+	)
+	msg.Name = (*byte)(ptr)
+	msg.Namelen = uint32(0)
+	if len(buffer) > 0 {
+		iov.Base = &buffer[0]
+		iov.SetLen(len(buffer))
+	}
+	if len(control) > 0 {
+		msg.Control = &control[0]
+		msg.SetControllen(len(control))
+	}
+	msg.Iov = &iov
+	msg.Iovlen = 1
+	length, _, errno := syscall.Syscall(
+		syscall.SYS_SENDMSG,
+		uintptr(sock),
+		uintptr(unsafe.Pointer(&msg)),
+		uintptr(flags),
+	)
+	if 0 != errno {
+		return 0, errno
+	}
+	if len(control) > 0 && len(buffer) == 0 {
+		return 0, nil
+	}
+	return int(length), nil
+}
