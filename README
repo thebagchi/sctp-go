@@ -4,10 +4,20 @@
 ## See example/sctp_client.go for client implementation.
 
 ### Running Server
-$ go run sctp_server.go
+
+#### Stream Server
+$ go run example/sctp_server.go
+
+#### SEQPACKET Server
+$ go run example/packet_server.go
 
 ### Running Client
-$ go run sctp_client.go
+
+#### Stream Client 
+$ go run example/sctp_client.go 
+
+#### SEQPACKET Client
+$ go run example/packet_client.go
 
 #### Getting
 $ go get github.com/thebagchi/sctp-go
