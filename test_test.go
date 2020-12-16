@@ -509,6 +509,9 @@ func TestPacking(t *testing.T) {
 	fmt.Printf("%s", hex.Dump(buffer))
 	fmt.Println(len(buffer))
 	fmt.Println(CMsgHeaderSize)
+	if len(buffer) != (CMsgHeaderSize + SCTPSndRcvInfoSize) {
+		t.Error("Expected sizes don't match")
+	}
 }
 
 func TestMakeSockaddr(t *testing.T) {

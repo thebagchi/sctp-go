@@ -79,6 +79,11 @@ func main() {
 							sctp.NotificationName(notification.GetType()),
 							notification.GetType(),
 						))
+						if notification.GetType() == sctp.SCTP_ASSOC_CHANGE {
+							if event, ok := notification.(*sctp.SCTPAssocChange); ok {
+								fmt.Println(event.State, event.Flags, event.AssocId)
+							}
+						}
 					}
 				} else {
 					fmt.Println(fmt.Sprintf("Rcvd %d bytes", len))
