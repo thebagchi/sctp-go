@@ -1,4 +1,4 @@
-package libs
+package sctp_go
 
 import (
 	"encoding/binary"
