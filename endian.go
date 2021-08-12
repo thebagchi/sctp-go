@@ -6,14 +6,14 @@ import (
 
 func HostToNetworkShort(number uint16) uint16 {
 	if endian == binary.LittleEndian {
-		return (number << 8 & 0xff00) | (number >> 8 & 0xff)
+		return (number << 8 & 0xff00) | (number >> 8 & 0x00ff)
 	}
 	return number
 }
 
 func NetworkToHostShort(number uint16) uint16 {
 	if endian == binary.LittleEndian {
-		return (number << 8 & 0xff00) | (number >> 8 & 0xff)
+		return (number << 8 & 0xff00) | (number >> 8 & 0x00ff)
 	}
 	return number
 }
