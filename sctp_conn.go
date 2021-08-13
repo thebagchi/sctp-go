@@ -19,6 +19,14 @@ func NewSCTPConn(sock int) *SCTPConn {
 	}
 }
 
+func (conn *SCTPConn) FD() int64 {
+    return sock
+}
+
+func (conn *SCTPConn) AssocId() int {
+	return assoc
+}
+
 func (conn *SCTPConn) GetPrimaryPeerAddr() (*SCTPAddr, error) {
 	param := &SCTPPrimaryAddr{
 		AssocId: int32(0),
