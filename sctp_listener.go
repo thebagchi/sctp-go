@@ -10,6 +10,10 @@ type SCTPListener struct {
 	sock int
 }
 
+func (listener *SCTPListener) FD() int {
+	return sock
+}
+
 func (listener *SCTPListener) Addr() net.Addr {
 	var (
 		data   = make([]byte, 4096)
