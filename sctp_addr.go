@@ -14,6 +14,27 @@ type SCTPAddr struct {
 	port      int
 }
 
+func (addr *SCTPAddr) Address() string {
+	var b bytes.Buffer
+	for n, address := range addr.addresses {
+		if n > 0 {
+			b.WriteRune('/')
+		}
+		if address.To4() != nil {
+			b.WriteString(address.String())
+		} else if address.To16() != nil {
+			b.WriteRune('[')
+			b.WriteString(address.String())
+			b.WriteRune(']')
+		}
+	}
+	return b.String()
+}
+
+func (addr *SCTPAddr) Port() int {
+	return addr.port
+}
+
 func (addr *SCTPAddr) IsV6Only() bool {
 	for _, addr := range addr.addresses {
 		if addr.To16() == nil {
