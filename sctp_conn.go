@@ -20,11 +20,11 @@ func NewSCTPConn(sock int) *SCTPConn {
 }
 
 func (conn *SCTPConn) FD() int64 {
-    return sock
+	return conn.sock
 }
 
 func (conn *SCTPConn) AssocId() int {
-	return assoc
+	return conn.assoc
 }
 
 func (conn *SCTPConn) GetPrimaryPeerAddr() (*SCTPAddr, error) {

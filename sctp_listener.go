@@ -11,7 +11,7 @@ type SCTPListener struct {
 }
 
 func (listener *SCTPListener) FD() int {
-	return sock
+	return listener.sock
 }
 
 func (listener *SCTPListener) Addr() net.Addr {
@@ -73,10 +73,10 @@ func (listener *SCTPListener) Abort(assoc int) error {
 
 func (listener *SCTPListener) Disconnect(assoc int) error {
 	msg := &SCTPSndRcvInfo{
-		Stream:     0,
-		Ppid:       0,
-		Flags:      SCTP_EOF,
-		AssocId:    int32(assoc),
+		Stream:  0,
+		Ppid:    0,
+		Flags:   SCTP_EOF,
+		AssocId: int32(assoc),
 	}
 	_, err := listener.SendMsg(nil, msg)
 	return err
