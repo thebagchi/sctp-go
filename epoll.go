@@ -31,6 +31,14 @@ func GetPoller() *Poller {
 	return poller
 }
 
+func (p *Poller) wake() (int, error) {
+	fd, _, err := syscall.Syscall(syscall.SYS_EVENTFD2, 0, 0, 0)
+	if 0 == err {
+		return int(fd), err
+	}
+	return int(fd), err
+}
+
 func (p *Poller) Init() error {
 	var err error = nil
 	descriptor, err := syscall.EpollCreate1(0)
