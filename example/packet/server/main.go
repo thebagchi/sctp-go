@@ -47,6 +47,7 @@ func main() {
 	if nil != events {
 		events.DataIoEvent = 1
 		events.AssociationEvent = 1
+		events.ShutdownEvent = 1
 
 		err = server.SetEventSubscribe(events)
 		if nil != err {
@@ -69,7 +70,7 @@ func main() {
 				fmt.Println("Connection terminated!!!")
 				break
 			} else {
-				if flag & sctp.SCTP_MSG_NOTIFICATION > 0 {
+				if flag&sctp.SCTP_MSG_NOTIFICATION > 0 {
 					notification, err := sctp.ParseNotification(data[:len])
 					if nil != err {
 						fmt.Println("Error: ", err)

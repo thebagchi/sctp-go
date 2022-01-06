@@ -103,6 +103,7 @@ func (listener *SCTPListener) Accept() (net.Conn, error) {
 }
 
 func (listener *SCTPListener) Close() error {
+	// Shutdown doesn't works on RAW Sockets, SCTP Socket is essentially a RAW Socket.
 	_ = syscall.Shutdown(listener.sock, syscall.SHUT_RDWR)
 	return syscall.Close(listener.sock)
 }
@@ -144,8 +145,14 @@ func (listener *SCTPListener) GetEventSubscribe() (*SCTPEventSubscribe, error) {
 }
 
 func (listener *SCTPListener) RecvMsg(b []byte, info *SCTPSndRcvInfo, flags *int) (n int, err error) {
-	oob := make([]byte, syscall.CmsgSpace(SCTPSndRcvInfoSize))
-	n, noob, flag, _, err := syscall.Recvmsg(listener.sock, b, oob, 0)
+	var (
+		oob  = make([]byte, syscall.CmsgSpace(SCTPSndRcvInfoSize))
+		flag = 0
+	)
+	if nil != flags {
+		flag = *flags
+	}
+	n, noob, flag, _, err := syscall.Recvmsg(listener.sock, b, oob, flag)
 	if nil != err {
 		return n, err
 	}
@@ -166,7 +173,6 @@ func (listener *SCTPListener) SendMsg(b []byte, info *SCTPSndRcvInfo) (int, erro
 		}
 		buffer = append(Pack(hdr), Pack(info)...)
 	}
-	// return syscall.SendmsgN(listener.sock, b, buffer, nil, 0)
 	return SCTPSendMsg(listener.sock, b, buffer, 0)
 }
 
@@ -184,6 +190,10 @@ func (listener *SCTPListener) SetInitMsg(init *SCTPInitMsg) error {
 		return err
 	}
 	return nil
+}
+
+func (listener *SCTPListener) SetNonblock() error {
+	return syscall.SetNonblock(listener.sock, true)
 }
 
 func ListenSCTP(network string, sockettype int, local *SCTPAddr, init *SCTPInitMsg) (*SCTPListener, error) {
