@@ -1,6 +1,7 @@
 package sctp_go
 
 import (
+	"fmt"
 	"sync"
 	"syscall"
 )
@@ -57,13 +58,14 @@ func (p *Poller) Add(fd int, cb Callback) error {
 			Events: syscall.EPOLLIN,
 		},
 	)
-	if nil != err {
+	if nil == err {
 		p.callbacks.Store(fd, cb)
 	}
 	return err
 }
 
 func (p *Poller) Del(fd int) error {
+	p.callbacks.Delete(fd)
 	err := syscall.EpollCtl(p.descriptor, syscall.EPOLL_CTL_DEL, fd, nil)
 	return err
 }
@@ -79,6 +81,7 @@ func (p *Poller) Loop() {
 			fd := events[i].Fd
 			if callback, ok := p.callbacks.Load(int(fd)); ok {
 				if handle, ok := callback.(Callback); ok {
+					fmt.Println("Calling for fd: ", fd)
 					handle()
 				}
 			}
