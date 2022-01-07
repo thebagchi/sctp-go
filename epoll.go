@@ -1,7 +1,6 @@
 package sctp_go
 
 import (
-	"fmt"
 	"sync"
 	"syscall"
 )
@@ -89,7 +88,6 @@ func (p *Poller) Loop() {
 			fd := events[i].Fd
 			if callback, ok := p.callbacks.Load(int(fd)); ok {
 				if handle, ok := callback.(Callback); ok {
-					fmt.Println("Calling for fd: ", fd)
 					handle()
 				}
 			}
