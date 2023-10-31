@@ -139,25 +139,25 @@ func FromSCTPGetAddrs(addr *SCTPGetAddrs) *SCTPAddr {
 		address := &SCTPAddr{
 			addresses: make([]net.IP, addr.Num),
 		}
-		ptr := unsafe.Pointer(uintptr(unsafe.Pointer(addr)) + unsafe.Sizeof(*addr))
+		ptr := unsafe.Add(unsafe.Pointer(addr), SCTPGetAddrsSize)
 		for i := uint32(0); i < addr.Num; i++ {
 			addr := (*SockAddr)(unsafe.Pointer(ptr))
 			size := uintptr(0)
 			switch addr.Family {
 			case syscall.AF_INET:
-				addr := (*SockAddrIn)(unsafe.Pointer(addr))
+				addr := (*SockAddrIn)(unsafe.Pointer(ptr))
 				address.port = int(ntohs(addr.Port))
 				address.addresses[i] = addr.Addr.Addr[:]
 				size = SockAddrInSize
 			case syscall.AF_INET6:
-				addr := (*SockAddrIn6)(unsafe.Pointer(addr))
+				addr := (*SockAddrIn6)(unsafe.Pointer(ptr))
 				address.port = int(ntohs(addr.Port))
 				address.addresses[i] = addr.Addr.Addr[:]
 				size = SockAddrIn6Size
 			default:
 				return nil
 			}
-			ptr = unsafe.Pointer(uintptr(ptr) + size*uintptr(i))
+			ptr = unsafe.Add(ptr, size)
 		}
 		return address
 	}
@@ -169,9 +169,9 @@ func MakeSCTPAddr(network, addr string) (*SCTPAddr, error) {
 	case "", "sctp":
 		network = "sctp"
 	case "sctp4":
-		network = "sctp"
+		network = "sctp4"
 	case "sctp6":
-		network = "sctp"
+		network = "sctp6"
 	default:
 		return nil, net.UnknownNetworkError(network)
 	}
@@ -205,20 +205,20 @@ func MakeSCTPAddr(network, addr string) (*SCTPAddr, error) {
 
 	for _, addr := range addrs {
 		if len(addr) == 0 {
-			if network == "sctp" {
+			if network == "sctp4" {
 				addresses = append(addresses, net.IPv4zero)
 				continue
 			}
-			if network == "sctp6" {
+			if network == "sctp" || network == "sctp6" {
 				addresses = append(addresses, net.IPv6zero)
 			}
 		} else {
 			address := net.ParseIP(addr)
-			if network == "sctp6" && address.To16() != nil {
+			if (network == "sctp" || network == "sctp6") && address.To16() != nil {
 				addresses = append(addresses, address)
 				continue
 			}
-			if network == "sctp" && address.To4() != nil {
+			if network == "sctp4" && address.To4() != nil {
 				addresses = append(addresses, address)
 			}
 		}

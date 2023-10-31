@@ -132,7 +132,7 @@ func (conn *SCTPConn) Close() error {
 func (conn *SCTPConn) LocalAddr() net.Addr {
 	var (
 		data   = make([]byte, 4096)
-		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data))
+		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data[0]))
 		length = len(data)
 	)
 	addrs.AssocId = 0
@@ -154,7 +154,7 @@ func (conn *SCTPConn) LocalAddr() net.Addr {
 func (conn *SCTPConn) RemoteAddr() net.Addr {
 	var (
 		data   = make([]byte, 4096)
-		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data))
+		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data[0]))
 		length = len(data)
 	)
 	addrs.AssocId = 0

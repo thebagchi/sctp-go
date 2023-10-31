@@ -17,7 +17,7 @@ func (listener *SCTPListener) FD() int {
 func (listener *SCTPListener) Addr() net.Addr {
 	var (
 		data   = make([]byte, 4096)
-		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data))
+		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data[0]))
 		length = len(data)
 	)
 	addrs.AssocId = 0
@@ -39,7 +39,7 @@ func (listener *SCTPListener) Addr() net.Addr {
 func (listener *SCTPListener) RemoteAddr(assoc int) net.Addr {
 	var (
 		data   = make([]byte, 4096)
-		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data))
+		addrs  = (*SCTPGetAddrs)(unsafe.Pointer(&data[0]))
 		length = len(data)
 	)
 	addrs.AssocId = int32(assoc)
