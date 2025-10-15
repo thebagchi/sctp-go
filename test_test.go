@@ -522,7 +522,7 @@ func TestMakeSockaddr(t *testing.T) {
 	}
 	{
 		buffer := MakeSockaddr(addr)
-		fmt.Printf(hex.Dump(buffer))
+		fmt.Println(hex.Dump(buffer))
 		fmt.Println(len(buffer))
 	}
 }
