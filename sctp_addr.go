@@ -1,6 +1,8 @@
 package sctp_go
 
 import (
+	"bytes"
+	"encoding/binary"
 	"net"
 	"strconv"
 	"strings"
@@ -115,7 +117,8 @@ func MakeSockaddr(addr *SCTPAddr) []byte {
 			capacity += SockAddrIn6Size
 		}
 	}
-	buffer := make([]byte, 0, capacity)
+	var buffer bytes.Buffer
+	buffer.Grow(capacity)
 	for _, address := range addr.addresses {
 		if ip4 := address.To4(); ip4 != nil {
 			/*
@@ -127,12 +130,10 @@ func MakeSockaddr(addr *SCTPAddr) []byte {
 				buffer = append(buffer, Pack(sa)...)
 			*/
 			// IPv4: Family(2) + Port(2) + Addr(4) + Zero(8) = 16 bytes
-			var sockaddr [16]byte
-			endian.PutUint16(sockaddr[0:2], syscall.AF_INET)
-			endian.PutUint16(sockaddr[2:4], port)
-			copy(sockaddr[4:8], ip4)
-			// sockaddr[8:16] remains zero
-			buffer = append(buffer, sockaddr[:]...)
+			binary.Write(&buffer, endian, uint16(syscall.AF_INET))
+			binary.Write(&buffer, endian, port)
+			buffer.Write(ip4)
+			binary.Write(&buffer, endian, uint64(0))
 			continue
 		}
 		if ip6 := address.To16(); ip6 != nil {
@@ -141,20 +142,18 @@ func MakeSockaddr(addr *SCTPAddr) []byte {
 					Family: syscall.AF_INET6,
 					Port:   port,
 				}
-				copy(sa.Addr[:], address.To16())
+				copy(sa.Addr[:], ip6)
 				buffer = append(buffer, Pack(sa)...)
 			*/
 			// IPv6: Family(2) + Port(2) + FlowInfo(4) + Addr(16) + ScopeId(4) = 28 bytes
-			var sockaddr [28]byte
-			endian.PutUint16(sockaddr[0:2], syscall.AF_INET6)
-			endian.PutUint16(sockaddr[2:4], port)
-			// sockaddr[4:8] remains zero (FlowInfo)
-			copy(sockaddr[8:24], address.To16())
-			// sockaddr[24:28] remains zero (ScopeId)
-			buffer = append(buffer, sockaddr[:]...)
+			binary.Write(&buffer, endian, uint16(syscall.AF_INET6))
+			binary.Write(&buffer, endian, port)
+			binary.Write(&buffer, endian, uint32(0)) // FlowInfo
+			buffer.Write(ip6)
+			binary.Write(&buffer, endian, uint32(0)) // ScopeId
 		}
 	}
-	return buffer
+	return buffer.Bytes()
 }
 
 // FromSockAddrStorage converts a socket address storage structure to an SCTPAddr.
