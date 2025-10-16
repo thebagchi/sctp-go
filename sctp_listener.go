@@ -9,6 +9,7 @@ import (
 	"unsafe"
 )
 
+// SCTPListener represents an SCTP listener socket.
 type SCTPListener struct {
 	sock int
 }
@@ -271,6 +272,8 @@ func (listener *SCTPListener) SetNonblock() error {
 }
 
 // ListenSCTP creates an SCTP listener on the specified network and address.
+//
+//lint:ignore SA4004 "do while pattern"
 func ListenSCTP(network string, sockettype int, local *SCTPAddr, init *SCTPInitMsg) (*SCTPListener, error) {
 	if local == nil {
 		return nil, errors.New("local address cannot be nil")
