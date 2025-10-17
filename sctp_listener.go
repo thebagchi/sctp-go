@@ -303,10 +303,6 @@ func ListenSCTP(network string, sockettype int, local *SCTPAddr, init *SCTPInitM
 		if err != nil {
 			break
 		}
-		err = syscall.SetsockoptInt(sock, syscall.IPPROTO_IPV6, syscall.IPV6_V6ONLY, 0)
-		if err != nil {
-			break
-		}
 		err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1)
 		if err != nil {
 			break

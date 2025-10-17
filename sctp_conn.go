@@ -402,10 +402,6 @@ func DialSCTP(network string, local, remote *SCTPAddr, init *SCTPInitMsg) (*SCTP
 	conn := &SCTPConn{
 		sock: int64(sock),
 	}
-	if err = syscall.SetsockoptInt(sock, syscall.IPPROTO_IPV6, syscall.IPV6_V6ONLY, 0); err != nil {
-		_ = conn.Close()
-		return nil, err
-	}
 	if err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1); err != nil {
 		_ = conn.Close()
 		return nil, err
