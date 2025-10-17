@@ -402,23 +402,24 @@ func DialSCTP(network string, local, remote *SCTPAddr, init *SCTPInitMsg) (*SCTP
 	conn := &SCTPConn{
 		sock: int64(sock),
 	}
+	defer func() {
+		if err != nil && conn != nil {
+			_ = conn.Close()
+		}
+	}()
 	if err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1); err != nil {
-		_ = conn.Close()
 		return nil, err
 	}
 	if err = conn.SetInitMsg(init); err != nil {
-		_ = conn.Close()
 		return nil, err
 	}
 	if local != nil {
 		if err = SCTPBind(sock, local, SCTP_BINDX_ADD_ADDR); err != nil {
-			_ = conn.Close()
 			return nil, err
 		}
 	}
 	conn.assoc, err = SCTPConnect(sock, remote)
 	if err != nil {
-		_ = conn.Close()
 		return nil, err
 	}
 	return conn, nil

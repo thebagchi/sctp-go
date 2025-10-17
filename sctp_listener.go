@@ -272,8 +272,6 @@ func (listener *SCTPListener) SetNonblock() error {
 }
 
 // ListenSCTP creates an SCTP listener on the specified network and address.
-//
-//lint:ignore SA4004 "do while pattern"
 func ListenSCTP(network string, sockettype int, local *SCTPAddr, init *SCTPInitMsg) (*SCTPListener, error) {
 	if local == nil {
 		return nil, errors.New("local address cannot be nil")
@@ -296,52 +294,48 @@ func ListenSCTP(network string, sockettype int, local *SCTPAddr, init *SCTPInitM
 		err      error
 		listener *SCTPListener
 	)
-	for {
-		family := DetectAddrFamily(network)
-		// syscall.SOCK_SEQPACKET vs syscall.SOCK_STREAM
-		sock, err = SCTPSocket(family, sockettype)
-		if err != nil {
-			break
-		}
-		err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1)
-		if err != nil {
-			break
-		}
-		err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_REUSEADDR, 1)
-		if err != nil {
-			break
-		}
-		_, _, errno := syscall.Syscall6(
-			syscall.SYS_SETSOCKOPT,
-			uintptr(sock),
-			SOL_SCTP,
-			SCTP_INITMSG,
-			uintptr(unsafe.Pointer(init)),
-			unsafe.Sizeof(*init),
-			0,
-		)
-		if errno != 0 {
-			err = errno
-			break
-		}
-		err = SCTPBind(sock, local, SCTP_BINDX_ADD_ADDR)
-		if err != nil {
-			break
-		}
-		err = syscall.Listen(sock, syscall.SOMAXCONN)
-		if err != nil {
-			break
-		}
-		listener = &SCTPListener{
-			sock: sock,
-		}
-		break
-	}
+	family := DetectAddrFamily(network)
+	// syscall.SOCK_SEQPACKET vs syscall.SOCK_STREAM
+	sock, err = SCTPSocket(family, sockettype)
 	if err != nil {
-		if sock > 0 {
+		return nil, err
+	}
+	defer func() {
+		if err != nil && sock > 0 {
 			_ = syscall.Close(sock)
 		}
+	}()
+	err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_BROADCAST, 1)
+	if err != nil {
 		return nil, err
+	}
+	err = syscall.SetsockoptInt(sock, syscall.SOL_SOCKET, syscall.SO_REUSEADDR, 1)
+	if err != nil {
+		return nil, err
+	}
+	_, _, errno := syscall.Syscall6(
+		syscall.SYS_SETSOCKOPT,
+		uintptr(sock),
+		SOL_SCTP,
+		SCTP_INITMSG,
+		uintptr(unsafe.Pointer(init)),
+		unsafe.Sizeof(*init),
+		0,
+	)
+	if errno != 0 {
+		err = errno
+		return nil, err
+	}
+	err = SCTPBind(sock, local, SCTP_BINDX_ADD_ADDR)
+	if err != nil {
+		return nil, err
+	}
+	err = syscall.Listen(sock, syscall.SOMAXCONN)
+	if err != nil {
+		return nil, err
+	}
+	listener = &SCTPListener{
+		sock: sock,
 	}
 	return listener, nil
 }
