@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	sctp "github.com/thebagchi/sctp-go"
 	"os"
+
+	sctp "github.com/thebagchi/sctp-go"
 )
 
 func main() {
@@ -61,6 +62,6 @@ func main() {
 	if nil != err {
 		fmt.Println("Error: ", err)
 	} else {
-		fmt.Println(fmt.Sprintf("Sent %d bytes", length))
+		fmt.Println("Sent bytes", length)
 	}
 }

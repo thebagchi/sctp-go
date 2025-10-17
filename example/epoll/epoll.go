@@ -23,7 +23,7 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	client, err := sctp.ListenSCTP(
+	receiver, err := sctp.ListenSCTP(
 		"sctp",
 		syscall.SOCK_SEQPACKET,
 		addr,
@@ -38,7 +38,7 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	events, err := client.GetEventSubscribe()
+	events, err := receiver.GetEventSubscribe()
 	if nil != err {
 		fmt.Println("Error: ", err)
 	}
@@ -46,33 +46,33 @@ func main() {
 		events.DataIoEvent = 1
 		events.AssociationEvent = 1
 		events.ShutdownEvent = 1
-		err = client.SetEventSubscribe(events)
+		err = receiver.SetEventSubscribe(events)
 		if nil != err {
 			fmt.Println("Error: ", err)
 		}
 	}
 	go func() {
-		fmt.Println("Registering fd: ", client.FD())
-		sctp.GetPoller().Add(client.FD(), func() {
+		fmt.Println("Registering fd: ", receiver.FD())
+		sctp.GetPoller().Add(receiver.FD(), func() {
 			info := &sctp.SCTPSndRcvInfo{}
 			flag := 0
 			data := make([]byte, 8192)
-			_, err := client.RecvMsg(data, info, &flag)
+			_, err := receiver.RecvMsg(data, info, &flag)
 			if err != nil {
 				fmt.Println("Error: ", err)
 			}
 		})
 		sctp.GetPoller().Loop()
 	}()
-	fmt.Println("sctp client started: ", time.Now())
+	fmt.Println("sctp receiver started: ", time.Now())
 	time.Sleep(30 * time.Second)
-	fmt.Println("sctp client closing: ", time.Now())
-	sctp.GetPoller().Del(client.FD())
-	err = client.Close()
+	fmt.Println("sctp receiver closing: ", time.Now())
+	sctp.GetPoller().Del(receiver.FD())
+	err = receiver.Close()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Println("sctp client closed")
+	fmt.Println("sctp receiver closed")
 	time.Sleep(60 * time.Second)
 }

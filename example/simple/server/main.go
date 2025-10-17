@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	sctp "github.com/thebagchi/sctp-go"
 	"os"
 	"syscall"
+
+	sctp "github.com/thebagchi/sctp-go"
 )
 
 func HandleClient(conn *sctp.SCTPConn) {
@@ -27,7 +28,7 @@ func HandleClient(conn *sctp.SCTPConn) {
 			fmt.Println("Connection terminated!!!")
 			break
 		} else {
-			fmt.Println(fmt.Sprintf("Rcvd %d bytes", len))
+			fmt.Println("Rcvd bytes: ", len)
 			buffer := data[:len]
 			fmt.Println(hex.Dump(buffer))
 			fmt.Println(hex.Dump(sctp.Pack(info)))

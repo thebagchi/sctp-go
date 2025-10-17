@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	sctp "github.com/thebagchi/sctp-go"
 	"os"
 	"syscall"
+
+	sctp "github.com/thebagchi/sctp-go"
 )
 
 func main() {
@@ -54,7 +55,7 @@ func main() {
 	if nil != err {
 		fmt.Println("Error: ", err)
 	} else {
-		fmt.Println(fmt.Sprintf("Sent %d bytes", length))
+		fmt.Println("Sent bytes: ", length)
 	}
 
 	err = client.Disconnect(assoc)

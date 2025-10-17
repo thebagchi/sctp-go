@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	sctp "github.com/thebagchi/sctp-go"
 	"os"
 	"syscall"
+
+	sctp "github.com/thebagchi/sctp-go"
 )
 
 func main() {
@@ -75,11 +76,11 @@ func main() {
 					if nil != err {
 						fmt.Println("Error: ", err)
 					} else {
-						fmt.Println(fmt.Sprintf(
-							"Notification %s %d",
+						fmt.Println(
+							"Notification received: ",
 							sctp.NotificationName(notification.GetType()),
 							notification.GetType(),
-						))
+						)
 						if notification.GetType() == sctp.SCTP_ASSOC_CHANGE {
 							if event, ok := notification.(*sctp.SCTPAssocChange); ok {
 								fmt.Println(event.State, event.Flags, event.AssocId)
@@ -87,7 +88,7 @@ func main() {
 						}
 					}
 				} else {
-					fmt.Println(fmt.Sprintf("Rcvd %d bytes", len))
+					fmt.Println("Rcvd bytes: ", len)
 					buffer := data[:len]
 					fmt.Println(hex.Dump(buffer))
 					fmt.Println(hex.Dump(sctp.Pack(info)))
