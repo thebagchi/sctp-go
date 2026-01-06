@@ -4,6 +4,8 @@ import (
 	"encoding/asn1"
 	"fmt"
 	"math"
+	"reflect"
+	"strings"
 
 	"github.com/thebagchi/sctp-go/gnbsim/per/bitbuffer"
 )
@@ -129,7 +131,8 @@ func (d *Decoder) ReadObjectIdentifier() (asn1.ObjectIdentifier, error) {
 
 // ReadChoice decodes the choice index for a CHOICE type
 // ITU-T X.691 Section 11.4: CHOICE
-func (d *Decoder) ReadChoice(numChoices int, extensible bool) (int, error) {
+// ReadChoiceIndex decodes a CHOICE index (returns the selected alternative index)
+func (d *Decoder) ReadChoiceIndex(numChoices int, extensible bool) (int, error) {
 	if extensible {
 		extended, err := d.ReadExtensionBit()
 		if err != nil {
@@ -530,4 +533,442 @@ func (d *Decoder) readBits(numBits uint) ([]byte, error) {
 	}
 
 	return result, nil
+}
+
+// ReadSequence decodes a SEQUENCE using reflection
+func (d *Decoder) ReadSequence(value any) error {
+	v := reflect.ValueOf(value)
+	if v.Kind() != reflect.Struct {
+		return fmt.Errorf("ReadSequence requires a struct")
+	}
+	return d.decodeSequence(v)
+}
+
+// decodeSequence decodes a struct (SEQUENCE or CHOICE)
+func (d *Decoder) decodeSequence(v reflect.Value) error {
+	if v.Kind() == reflect.Pointer {
+		if v.IsNil() {
+			v.Set(reflect.New(v.Type().Elem()))
+		}
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Struct {
+		return fmt.Errorf("expected struct, got %v", v.Kind())
+	}
+
+	t := v.Type()
+	numFields := t.NumField()
+
+	// Determine if extensible and where extension starts
+	var extensible bool
+	var extensionStart int = numFields
+
+	for i := range numFields {
+		field := t.Field(i)
+		if field.Name == "_" && field.Type.Kind() == reflect.Struct && field.Type.NumField() == 0 {
+			tag := field.Tag.Get(TAG_KEY)
+			opts := parseTag(tag)
+			if opts.ext {
+				extensible = true
+				extensionStart = i + 1
+				break
+			}
+		}
+	}
+
+	// Count optional fields for presence bitmap (root only)
+	var optionalCount int
+	for i := 0; i < extensionStart; i++ {
+		field := t.Field(i)
+		if field.Name == "_" {
+			continue
+		}
+		tag := field.Tag.Get(TAG_KEY)
+		opts := parseTag(tag)
+		if opts.opt || field.Type.Kind() == reflect.Ptr {
+			optionalCount++
+		}
+	}
+
+	// Read optional presence bitmap (X.691 11.5.1)
+	// Per X.691 11.5.1: N bits where N = number of optional fields
+	optionalPresent := make([]bool, optionalCount)
+	if optionalCount > 0 {
+		// Read bitmap bits directly (no length encoding for preamble)
+		bitmapBytes, err := d.readBits(uint(optionalCount))
+		if err != nil {
+			return err
+		}
+		for i := 0; i < optionalCount; i++ {
+			byteIdx := i / 8
+			bitIdx := uint(7 - (i % 8))
+			optionalPresent[i] = (bitmapBytes[byteIdx] & (1 << bitIdx)) != 0
+		}
+	}
+
+	// Read extension bit if extensible
+	var hasExtension bool
+	if extensible {
+		extBit, err := d.ReadExtensionBit()
+		if err != nil {
+			return err
+		}
+		hasExtension = extBit
+	}
+
+	// Decode root fields
+	optIdx := 0
+	for i := 0; i < extensionStart; i++ {
+		field := t.Field(i)
+		if field.Name == "_" {
+			continue
+		}
+		fv := v.Field(i)
+		tag := field.Tag.Get(TAG_KEY)
+		opts := parseTag(tag)
+
+		isOptional := opts.opt || field.Type.Kind() == reflect.Ptr
+		if isOptional {
+			if optIdx >= len(optionalPresent) {
+				return fmt.Errorf("optional bitmap mismatch")
+			}
+			if !optionalPresent[optIdx] {
+				optIdx++
+				continue // absent
+			}
+			optIdx++
+		}
+
+		if err := d.decodeField(field, fv); err != nil {
+			return err
+		}
+	}
+
+	// Extension handling: read extension bitmap and decode extension fields as open types
+	if hasExtension && extensionStart > 0 && extensionStart < numFields {
+		// Collect extension fields defined in this struct
+		var extensionFields []int
+		for i := extensionStart; i < numFields; i++ {
+			field := t.Field(i)
+			if field.Name == "_" {
+				continue
+			}
+			tag := field.Tag.Get(TAG_KEY)
+			if tag != "" {
+				extensionFields = append(extensionFields, i)
+			}
+		}
+
+		// Read extension bitmap from the stream
+		// The bitmap indicates which extension fields (from the encoded message) are present
+		// Per X.691 11.5.3: Extension bitmap is length-prefixed
+		if d.aligned {
+			if err := d.Align(); err != nil {
+				return err
+			}
+		}
+		extBitmapLen, err := d.readLength()
+		if err != nil {
+			return err
+		}
+
+		// Read extension bitmap bits as BIT STRING
+		// May be larger than what we have fields for - we need to read all bits to stay in sync
+		extBitmap := make([]bool, extBitmapLen)
+		if extBitmapLen > 0 {
+			// Read bitmap bits directly (no length encoding for preamble within the open type)
+			bitmapBytes, err := d.readBits(uint(extBitmapLen))
+			if err != nil {
+				return err
+			}
+			for i := uint64(0); i < extBitmapLen; i++ {
+				byteIdx := i / 8
+				bitIdx := uint(7 - (i % 8))
+				extBitmap[i] = (bitmapBytes[byteIdx] & (1 << bitIdx)) != 0
+			}
+
+			// Decode extension fields
+			// We iterate through all bits in the bitmap, decoding each present field
+			for i := uint64(0); i < extBitmapLen; i++ {
+				if extBitmap[i] {
+					// Align before open type (X.691 11.5.3)
+					if d.aligned {
+						if err := d.Align(); err != nil {
+							return err
+						}
+					}
+
+					// Read open type (unconstrained octet string) for every present field
+					extBytes, err := d.ReadOctetString(nil, nil, false)
+					if err != nil {
+						return err
+					}
+
+					// Check if we have this field defined
+					if i < uint64(len(extensionFields)) {
+						fieldIdx := extensionFields[i]
+						field := t.Field(fieldIdx)
+						fv := v.Field(fieldIdx)
+
+						// Decode extension value from the open type bytes
+						tempDec := NewDecoder(extBytes, d.aligned)
+						if err := tempDec.decodeField(field, fv); err != nil {
+							return err
+						}
+					}
+					// If field doesn't exist in our struct (from a newer version),
+					// we've already consumed the open type data, so just skip it
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// ReadSequenceOf decodes SEQUENCE OF (slice/array)
+func (d *Decoder) ReadSequenceOf(elements any, lb, ub *int64, extensible bool) error {
+	v := reflect.ValueOf(elements)
+	if v.Kind() != reflect.Pointer {
+		return fmt.Errorf("ReadSequenceOf requires pointer to slice/array")
+	}
+	slice := v.Elem()
+	if slice.Kind() != reflect.Slice && slice.Kind() != reflect.Array {
+		return fmt.Errorf("ReadSequenceOf requires slice or array")
+	}
+
+	// Decode length
+	var length uint64
+	if lb != nil && ub != nil {
+		rangeSize := *ub - *lb + 1
+		if extensible {
+			extended, err := d.ReadExtensionBit()
+			if err != nil {
+				return err
+			}
+			if extended {
+				val, err := d.readNormallySmallValue()
+				if err != nil {
+					return err
+				}
+				length = val
+			} else {
+				val, err := d.readConstrainedValue(rangeSize)
+				if err != nil {
+					return err
+				}
+				length = val + uint64(*lb)
+			}
+		} else {
+			val, err := d.readConstrainedValue(rangeSize)
+			if err != nil {
+				return err
+			}
+			length = val + uint64(*lb)
+		}
+	} else if lb != nil {
+		val, err := d.readSemiConstrainedValue(*lb)
+		if err != nil {
+			return err
+		}
+		length = uint64(val)
+	} else {
+		val, err := d.readLength()
+		if err != nil {
+			return err
+		}
+		length = val
+	}
+
+	// Resize slice if needed
+	if slice.Kind() == reflect.Slice {
+		slice.Set(reflect.MakeSlice(slice.Type(), int(length), int(length)))
+	} else if int(length) != slice.Len() {
+		return fmt.Errorf("fixed array length mismatch: expected %d, got %d", slice.Len(), length)
+	}
+
+	// Decode elements
+	for i := 0; i < int(length); i++ {
+		elem := slice.Index(i)
+		if err := d.decodeValue(elem.Addr().Interface()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ReadChoice decodes a CHOICE using the _ extensible marker
+// Extension alternatives are decoded as open types (length + raw PER bits)
+func (d *Decoder) ReadChoice(value any) error {
+	v := reflect.ValueOf(value)
+	if v.Kind() != reflect.Ptr {
+		return fmt.Errorf("ReadChoice requires pointer to struct")
+	}
+	v = v.Elem()
+	if v.Kind() != reflect.Struct {
+		return fmt.Errorf("ReadChoice requires struct")
+	}
+
+	t := v.Type()
+
+	// Find root count and detect extensibility
+	rootCount := 0
+	extensible := false
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if field.Name == "_" && field.Type.Kind() == reflect.Struct {
+			tag := field.Tag.Get(TAG_KEY)
+			opts := parseTag(tag)
+			if opts.ext {
+				extensible = true
+				break
+			}
+		}
+		if tag := field.Tag.Get(TAG_KEY); strings.Contains(tag, "choice=") {
+			rootCount++
+		}
+	}
+
+	// Read choice index using ReadChoiceIndex
+	index, err := d.ReadChoiceIndex(rootCount, extensible)
+	if err != nil {
+		return err
+	}
+
+	// Determine if this is an extension
+	extended := extensible && index >= rootCount
+
+	// For extensions, we need to read the open type data first
+	// This ensures we consume it from the stream even if the field doesn't exist in our struct
+	var openTypeData []byte
+	if extended {
+		// Align before open type (X.691 11.5.3)
+		if d.aligned {
+			if err := d.Align(); err != nil {
+				return err
+			}
+		}
+
+		var err error
+		openTypeData, err = d.ReadOctetString(nil, nil, false)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Find field with matching choice index
+	found := false
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		tag := field.Tag.Get(TAG_KEY)
+		opts := parseTag(tag)
+		if opts.choice == nil {
+			continue
+		}
+		if *opts.choice == index {
+			fv := v.Field(i)
+			if fv.Kind() == reflect.Pointer {
+				fv.Set(reflect.New(fv.Type().Elem()))
+				fv = fv.Elem()
+			}
+
+			if extended {
+				// Extension alternative - decode from open type
+				tempDec := NewDecoder(openTypeData, d.aligned)
+				if err := tempDec.decodeValue(fv.Addr().Interface()); err != nil {
+					return err
+				}
+			} else {
+				// Root alternative - decode value directly
+				if err := d.decodeValue(fv.Addr().Interface()); err != nil {
+					return err
+				}
+			}
+
+			found = true
+			break
+		}
+	}
+
+	// If extension field was not found in struct, it's from a newer version - already consumed from stream
+	if !found && extended {
+		return nil
+	}
+
+	if !found {
+		return fmt.Errorf("unknown choice index %d", index)
+	}
+	return nil
+}
+
+// decodeField decodes a single field
+func (d *Decoder) decodeField(field reflect.StructField, value reflect.Value) error {
+	tag := field.Tag.Get(TAG_KEY)
+	opts := parseTag(tag)
+
+	switch field.Type.Kind() {
+	case reflect.Int64:
+		val, err := d.ReadInt(opts.lb, opts.ub, opts.ext)
+		if err != nil {
+			return err
+		}
+		value.SetInt(val)
+		return nil
+
+	case reflect.Bool:
+		val, err := d.ReadBool()
+		if err != nil {
+			return err
+		}
+		value.SetBool(val)
+		return nil
+
+	case reflect.String:
+		val, err := d.ReadCharacterString(opts.lb, opts.ub, opts.ext)
+		if err != nil {
+			return err
+		}
+		value.SetString(val)
+		return nil
+
+	case reflect.Slice:
+		if field.Type.Elem().Kind() == reflect.Uint8 {
+			val, err := d.ReadOctetString(opts.lb, opts.ub, opts.ext)
+			if err != nil {
+				return err
+			}
+			value.SetBytes(val)
+			return nil
+		}
+		// SEQUENCE OF
+		return d.ReadSequenceOf(value.Addr().Interface(), opts.lb, opts.ub, opts.ext)
+
+	case reflect.Array:
+		if field.Type.Elem().Kind() == reflect.Uint8 {
+			val, err := d.ReadOctetString(opts.lb, opts.ub, opts.ext)
+			if err != nil {
+				return err
+			}
+			reflect.Copy(value, reflect.ValueOf(val))
+			return nil
+		}
+		return d.ReadSequenceOf(value.Addr().Interface(), opts.lb, opts.ub, opts.ext)
+
+	case reflect.Struct:
+		if opts.choice != nil {
+			return d.ReadChoice(value.Addr().Interface())
+		}
+		return d.ReadSequence(value.Addr().Interface())
+
+	default:
+		return fmt.Errorf("unsupported field type %s", field.Type)
+	}
+}
+
+// decodeValue helper
+func (d *Decoder) decodeValue(value any) error {
+	if value == nil {
+		return nil
+	}
+	return d.ReadSequence(value)
 }

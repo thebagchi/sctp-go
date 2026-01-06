@@ -10,10 +10,10 @@ var InitialBufferSize = 64
 
 // Codec manages a bit stream for encoding and decoding.
 type Codec struct {
-	Buff        []byte
-	offset      uint8  // Current bit offset in the current byte (0–7). 0 = byte-aligned.
-	bitsWritten uint64 // Total bits written
-	bitsRead    uint64 // Total bits read
+	Buff    []byte
+	offset  uint8  // Current bit offset in the current byte (0–7). 0 = byte-aligned.
+	written uint64 // Total bits written
+	read    uint64 // Total bits read
 }
 
 // CreateWriter creates a new Codec for writing.
@@ -43,18 +43,18 @@ func (c *Codec) Cap() int {
 
 // NumWritten returns the total number of bits written.
 func (c *Codec) NumWritten() uint64 {
-	return c.bitsWritten
+	return c.written
 }
 
 // NumRead returns the total number of bits read.
 func (c *Codec) NumRead() uint64 {
-	return c.bitsRead
+	return c.read
 }
 
 // Bytes returns the encoded data trimmed to the exact number of bytes needed.
-// Includes the partial final byte if bitsWritten is not a multiple of 8.
+// Includes the partial final byte if written is not a multiple of 8.
 func (c *Codec) Bytes() []byte {
-	if c.bitsWritten == 0 {
+	if c.written == 0 {
 		return nil
 	}
 	return c.Buff
@@ -77,12 +77,12 @@ func (c *Codec) append() {
 
 // incrementRead increments the bits read counter.
 func (c *Codec) incrementRead(bits uint64) {
-	c.bitsRead += bits
+	c.read += bits
 }
 
 // incrementWrite increments the bits written counter.
 func (c *Codec) incrementWrite(bits uint64) {
-	c.bitsWritten += bits
+	c.written += bits
 }
 
 // Write writes the least significant 'num' bits of value (1 ≤ num ≤ 64).
