@@ -1,8 +1,10 @@
 package per
 
 import (
+	"reflect"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // Example usage:
@@ -133,4 +135,41 @@ func parseTag(tag string) *Tag {
 	}
 
 	return opt
+}
+
+// TagCache provides thread-safe caching of parsed struct field tags
+// Maps from (struct type, field index) to parsed Tag
+type TagCache struct {
+	mtx   sync.RWMutex
+	cache map[reflect.Type]map[int]*Tag
+}
+
+var tagCache = &TagCache{
+	cache: make(map[reflect.Type]map[int]*Tag),
+}
+
+// GetFieldTag returns the parsed tag for a struct field, using a cache to avoid re-parsing
+// Lookup key is (struct type, field index) to ensure unique identification
+func GetFieldTag(field reflect.StructField, parent reflect.Type, index int) *Tag {
+	tagCache.mtx.RLock()
+	if typeCache, exists := tagCache.cache[parent]; exists {
+		if tag, exists := typeCache[index]; exists {
+			tagCache.mtx.RUnlock()
+			return tag
+		}
+	}
+	tagCache.mtx.RUnlock()
+
+	// Not in cache, parse and cache it
+	tagStr := field.Tag.Get(TAG_KEY)
+	parsed := parseTag(tagStr)
+
+	tagCache.mtx.Lock()
+	if _, exists := tagCache.cache[parent]; !exists {
+		tagCache.cache[parent] = make(map[int]*Tag)
+	}
+	tagCache.cache[parent][index] = parsed
+	tagCache.mtx.Unlock()
+
+	return parsed
 }

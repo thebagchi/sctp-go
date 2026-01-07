@@ -69,8 +69,8 @@ func (c *Codec) grow(n int) {
 	c.Buff = c.Buff[:len(c.Buff)+n]
 }
 
-// append appends a new zero byte and resets offset to 0.
-func (c *Codec) append() {
+// Append appends a new zero byte and resets offset to 0.
+func (c *Codec) Append() {
 	c.grow(1)
 	c.offset = 0
 }
@@ -96,10 +96,10 @@ func (c *Codec) Write(num uint8, value uint64) error {
 	bitsLeft := num
 	for bitsLeft > 0 {
 		if c.offset == 8 {
-			c.append()
+			c.Append()
 		}
 		if len(c.Buff) == 0 {
-			c.append()
+			c.Append()
 		}
 
 		var (
@@ -178,6 +178,9 @@ func (c *Codec) WriteBytes(data []byte) error {
 		c.grow(len(data))
 		copy(c.Buff[length:], data)
 		c.incrementWrite(uint64(len(data) * 8))
+		// After writing complete bytes from offset 0, offset should be 8
+		// (byte is full) - matching Write(8) behavior for consistency
+		c.offset = 8
 		return nil
 	}
 
@@ -231,7 +234,7 @@ func (c *Codec) ReadBytes(n int) ([]byte, error) {
 func (c *Codec) Align() error {
 	if c.offset > 0 && c.offset < 8 {
 		// Partial byte - need to pad and move to next byte
-		c.append()
+		c.Append()
 	} else if c.offset == 8 {
 		// Just finished a byte - just reset offset
 		c.offset = 0

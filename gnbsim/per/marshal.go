@@ -555,8 +555,7 @@ func (e *Encoder) WriteChoice(value any) error {
 		}
 
 		field := t.Field(i)
-		tag := field.Tag.Get("per")
-		opts := parseTag(tag)
+		opts := GetFieldTag(field, t, i)
 
 		if opts.choice == nil {
 			continue
@@ -673,8 +672,7 @@ func (e *Encoder) encodeSequence(v reflect.Value) error {
 			continue
 		}
 
-		tag := field.Tag.Get("per")
-		opts := parseTag(tag)
+		opts := GetFieldTag(field, t, i)
 
 		// Pointer fields are automatically optional, even without opt tag
 		isOptional := opts.opt || field.Type.Kind() == reflect.Pointer
@@ -735,8 +733,7 @@ func (e *Encoder) encodeSequence(v reflect.Value) error {
 			continue
 		}
 
-		tag := field.Tag.Get("per")
-		opts := parseTag(tag)
+		opts := GetFieldTag(field, t, i)
 
 		// Pointer fields are automatically optional
 		isOptional := opts.opt || field.Type.Kind() == reflect.Ptr
@@ -846,9 +843,13 @@ func (e *Encoder) encodeField(field reflect.StructField, value reflect.Value) er
 		t = t.Elem()
 	}
 
-	// Parse field tags for constraints
-	tag := field.Tag.Get("per")
-	opts := parseTag(tag)
+	// Handle Null type
+	if t.Name() == "Null" && t.Kind() == reflect.Struct {
+		return e.WriteNull()
+	}
+
+	// Parse field tags for constraints (using cache)
+	opts := GetFieldTag(field, field.Type, 0)
 
 	switch t.Kind() {
 	case reflect.Bool:

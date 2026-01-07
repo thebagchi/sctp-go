@@ -566,8 +566,7 @@ func (d *Decoder) decodeSequence(v reflect.Value) error {
 	for i := range numFields {
 		field := t.Field(i)
 		if field.Name == "_" && field.Type.Kind() == reflect.Struct && field.Type.NumField() == 0 {
-			tag := field.Tag.Get(TAG_KEY)
-			opts := parseTag(tag)
+			opts := GetFieldTag(field, t, i)
 			if opts.ext {
 				extensible = true
 				extensionStart = i + 1
@@ -583,8 +582,7 @@ func (d *Decoder) decodeSequence(v reflect.Value) error {
 		if field.Name == "_" {
 			continue
 		}
-		tag := field.Tag.Get(TAG_KEY)
-		opts := parseTag(tag)
+		opts := GetFieldTag(field, t, i)
 		if opts.opt || field.Type.Kind() == reflect.Ptr {
 			optionalCount++
 		}
@@ -624,8 +622,7 @@ func (d *Decoder) decodeSequence(v reflect.Value) error {
 			continue
 		}
 		fv := v.Field(i)
-		tag := field.Tag.Get(TAG_KEY)
-		opts := parseTag(tag)
+		opts := GetFieldTag(field, t, i)
 
 		isOptional := opts.opt || field.Type.Kind() == reflect.Ptr
 		if isOptional {
@@ -860,8 +857,7 @@ func (d *Decoder) ReadChoice(value any) error {
 	found := false
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
-		tag := field.Tag.Get(TAG_KEY)
-		opts := parseTag(tag)
+		opts := GetFieldTag(field, t, i)
 		if opts.choice == nil {
 			continue
 		}
@@ -903,8 +899,12 @@ func (d *Decoder) ReadChoice(value any) error {
 
 // decodeField decodes a single field
 func (d *Decoder) decodeField(field reflect.StructField, value reflect.Value) error {
-	tag := field.Tag.Get(TAG_KEY)
-	opts := parseTag(tag)
+	opts := GetFieldTag(field, value.Type(), 0)
+
+	// Handle Null type
+	if field.Type.Name() == "Null" && field.Type.Kind() == reflect.Struct {
+		return d.ReadNull()
+	}
 
 	switch field.Type.Kind() {
 	case reflect.Int64:
